@@ -238,25 +238,33 @@ function Overview() {
           >
             <Card
               delay={i * 0.05}
-              className="h-full cursor-pointer hover:-translate-y-1 transition-all hover:shadow-elegant"
+              className="relative h-full cursor-pointer overflow-hidden hover:-translate-y-1 transition-all hover:shadow-elegant"
             >
-              <div
-                className={`mb-3 sm:mb-4 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl ${
-                  q.tone === "accent"
-                    ? "gradient-accent text-primary"
-                    : q.tone === "success"
-                      ? "bg-success text-white"
-                      : "gradient-primary text-primary-foreground"
-                }`}
-              >
-                <q.icon size={18} />
+              {/* Background visual cue */}
+              <q.icon
+                aria-hidden
+                className={`pointer-events-none absolute -right-4 -bottom-4 h-32 w-32 sm:h-40 sm:w-40 opacity-[0.08] ${q.bgTone}`}
+                strokeWidth={1.25}
+              />
+              <div className="relative">
+                <div
+                  className={`mb-3 sm:mb-4 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl ${
+                    q.tone === "accent"
+                      ? "gradient-accent text-primary"
+                      : q.tone === "success"
+                        ? "bg-success text-white"
+                        : "gradient-primary text-primary-foreground"
+                  }`}
+                >
+                  <q.icon size={18} />
+                </div>
+                <h3 className="font-display text-sm sm:text-base font-semibold leading-tight">
+                  {q.title}
+                </h3>
+                <p className="mt-1 text-[11px] sm:text-xs text-muted-foreground">
+                  {q.desc}
+                </p>
               </div>
-              <h3 className="font-display text-sm sm:text-base font-semibold leading-tight">
-                {q.title}
-              </h3>
-              <p className="mt-1 text-[11px] sm:text-xs text-muted-foreground">
-                {q.desc}
-              </p>
             </Card>
           </Link>
         ))}
