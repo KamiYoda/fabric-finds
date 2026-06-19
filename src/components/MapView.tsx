@@ -10,24 +10,34 @@ const markerIcon = new L.Icon({
 });
 
 interface MapViewProps {
-  latitude: number;
-  longitude: number;
+  latitude?: number;
+  longitude?: number;
   height?: string;
   label?: string;
+  pins?: number;
+  onPin?: (index: number) => void;
 }
 
 export function MapView({
-  latitude,
-  longitude,
+  latitude = 6.5244,
+  longitude = 3.3792,
   height = "h-72",
   label,
+  pins = 1,
+  onPin,
 }: MapViewProps) {
+  const center: [number, number] = [latitude, longitude];
+  const markers: [number, number][] = Array.from({ length: pins }, (_, i) => [
+    latitude + (i % 3) * 0.004,
+    longitude + Math.floor(i / 3) * 0.004,
+  ]);
+
   return (
     <div
       className={`overflow-hidden w-full rounded-2xl border border-border ${height}`}
     >
       <MapContainer
-        center={[latitude, longitude]}
+        center={center}
         zoom={15}
         scrollWheelZoom={false}
         className="h-full w-full"
@@ -37,9 +47,16 @@ export function MapView({
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
-        <Marker position={[latitude, longitude]} icon={markerIcon}>
-          <Popup>{label ?? "Tailor Location"}</Popup>
-        </Marker>
+        {markers.map((position, index) => (
+          <Marker
+            key={`${position[0]}-${position[1]}`}
+            position={position}
+            icon={markerIcon}
+            eventHandlers={{ click: () => onPin?.(index) }}
+          >
+            <Popup>{label ?? "Tailor Location"}</Popup>
+          </Marker>
+        ))}
       </MapContainer>
     </div>
   );

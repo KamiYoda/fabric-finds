@@ -1,8 +1,8 @@
 // Drop-in replacement for buildMeasurementPayload in create.tsx
 // Also replaces the normalizeMeasurement function
 
-import type { Measurement } from "../../components/measurement-data";
-import type { MeasurementPayload } from "../../lib/api/measurements";
+import type { Measurement } from "./measurement-data";
+import type { MeasurementPayload } from "@/lib/api/measurements";
 
 function parseMeasurementNumber(
   v: string | number | null | undefined,
