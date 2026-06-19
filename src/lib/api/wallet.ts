@@ -149,54 +149,76 @@ export async function getWalletTransaction(
   transactionId: string,
 ): Promise<WalletTransactionDetail> {
   const res = await apiRequest<{ data: WalletTransactionDetail }>(
-    "GET",
     `/wallet/transactions/${transactionId}`,
+    { method: "GET", auth: true },
   );
   return res.data;
 }
 
 export async function getSpendingSummary(): Promise<SpendingSummaryItem[]> {
   const res = await apiRequest<{ data: SpendingSummaryItem[] }>(
-    "GET",
     "/wallet/spending-summary",
+    { method: "GET", auth: true },
   );
   return res.data;
 }
 
 export async function getSavedCards(): Promise<SavedCard[]> {
-  const res = await apiRequest<{ data: SavedCard[] }>("GET", "/wallet/cards");
+  const res = await apiRequest<{ data: SavedCard[] }>("/wallet/cards", {
+    method: "GET",
+    auth: true,
+  });
   return res.data;
 }
 
 export async function topUpWithCard(payload: TopUpCardPayload): Promise<void> {
-  await apiRequest("POST", "/wallet/topup/card", payload);
+  await apiRequest("/wallet/topup/card", {
+    method: "POST",
+    auth: true,
+    body: payload,
+  });
 }
 
 export async function topUpViaBankTransfer(
   payload: TopUpBankTransferPayload,
 ): Promise<void> {
-  await apiRequest("POST", "/wallet/topup/bank-transfer", payload);
+  await apiRequest("/wallet/topup/bank-transfer", {
+    method: "POST",
+    auth: true,
+    body: payload,
+  });
 }
 
 export async function getSavedBanks(): Promise<SavedBank[]> {
-  const res = await apiRequest<{ data: SavedBank[] }>("GET", "/wallet/banks");
+  const res = await apiRequest<{ data: SavedBank[] }>("/wallet/banks", {
+    method: "GET",
+    auth: true,
+  });
   return res.data;
 }
 
 export async function getBankList(): Promise<{ code: string; name: string }[]> {
   const res = await apiRequest<{ data: { code: string; name: string }[] }>(
-    "GET",
     "/wallet/bank-list",
+    { method: "GET", auth: true },
   );
   return res.data;
 }
 
 export async function addBank(payload: AddBankPayload): Promise<void> {
-  await apiRequest("POST", "/wallet/banks", payload);
+  await apiRequest("/wallet/banks", {
+    method: "POST",
+    auth: true,
+    body: payload,
+  });
 }
 
 export async function withdraw(payload: WithdrawPayload): Promise<void> {
-  await apiRequest("POST", "/wallet/withdraw", payload);
+  await apiRequest("/wallet/withdraw", {
+    method: "POST",
+    auth: true,
+    body: payload,
+  });
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
