@@ -45,7 +45,7 @@ export const ExplorePage = memo(() => {
     (tailor: Tailor) => {
       router.navigate({
         to: "/dashboard/create",
-        search: { tailor_id: tailor.id },
+        search: { tailor_id: tailor.id, draft_id: undefined },
       });
     },
     [router],
