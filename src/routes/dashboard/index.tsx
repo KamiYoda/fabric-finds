@@ -270,74 +270,64 @@ function Overview() {
         ))}
       </div>
 
+      {/* Recent orders + Notifications */}
       <div className="grid gap-4 sm:gap-6 lg:grid-cols-3">
-        {/* Measurements */}
         <Card delay={0.1} className="lg:col-span-2">
           <div className="flex items-center justify-between">
             <h2 className="font-display text-lg sm:text-xl font-semibold">
-              My measurements
-              {isFetching && !isLoading && (
-                <span className="ml-2 sm:ml-3 text-xs sm:text-sm text-muted-foreground">
-                  <Loader2
-                    size={12}
-                    className="inline-block animate-spin mr-1"
-                  />
-                  Refreshing…
-                </span>
-              )}
+              Recent orders
             </h2>
             <Link
-              to="/dashboard/measurements"
-              className="text-xs sm:text-sm font-semibold text-primary hover:underline whitespace-nowrap"
+              to="/dashboard/orders"
+              className="text-xs sm:text-sm font-semibold text-primary hover:underline"
             >
-              Manage
+              View all
             </Link>
           </div>
-
-          <div className="mt-3 sm:mt-5 flex flex-wrap gap-1.5 sm:gap-2">
-            {sections.map((section) => (
-              <button
-                key={section.key}
-                type="button"
-                onClick={() => setSelectedSection(section.key)}
-                className={`rounded-full px-3 sm:px-4 py-1 sm:py-1.5 text-xs font-medium transition-colors ${
-                  selectedSection === section.key
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground hover:bg-secondary"
-                }`}
-              >
-                {section.label}
-              </button>
-            ))}
-          </div>
-
-          <div className="mt-3 sm:mt-5 grid grid-cols-2 gap-2 sm:gap-3 sm:grid-cols-3 lg:grid-cols-4">
-            {isLoading ? (
-              <div className="col-span-full flex items-center justify-center py-6 sm:py-8 text-sm text-muted-foreground">
-                <Loader2 size={14} className="animate-spin" />
-                <span className="ml-2">Loading measurements…</span>
+          <div className="mt-4 sm:mt-5 divide-y divide-border">
+            {ordersArr.length === 0 ? (
+              <div className="rounded-3xl border border-border bg-muted p-6 sm:p-8 text-center text-sm text-muted-foreground">
+                No recent orders yet.
               </div>
             ) : (
-              <>
-                {measurementEntries.map(([label, value]) => (
-                  <div
-                    key={label}
-                    className="rounded-2xl border border-border bg-background p-3 sm:p-4"
-                  >
-                    <div className="text-[11px] sm:text-xs text-muted-foreground capitalize">
-                      {label}
+              ordersArr.slice(0, 3).map((o: any, i: number) => (
+                <div
+                  key={o.id ?? i}
+                  className="flex items-center gap-3 sm:gap-4 py-3 sm:py-4"
+                >
+                  <div className="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-2xl gradient-cream text-primary">
+                    <Shirt size={18} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm sm:text-base font-semibold truncate">
+                      {o.title ?? o.name ?? `${o.outfit_category ?? ""}`}
                     </div>
-                    <div className="mt-1 font-display text-xl sm:text-2xl font-bold">
-                      {String(value) || "—"}
+                    <div className="text-[11px] sm:text-xs text-muted-foreground flex items-center gap-1.5">
+                      <Clock size={11} />{" "}
+                      {o.estimated_timeline_days
+                        ? `ETA ${o.estimated_timeline_days} days`
+                        : ""}{" "}
+                      · {o.tailor_name ?? o.tailor?.name ?? ""}
                     </div>
                   </div>
-                ))}
-                {measurementEntries.length === 0 && (
-                  <div className="col-span-full text-center py-6 sm:py-8 text-sm text-muted-foreground">
-                    No measurements recorded yet
+                  <div className="hidden sm:block flex-1 min-w-[120px]">
+                    <div className="h-2 overflow-hidden rounded-full bg-muted">
+                      <div
+                        className="h-full rounded-full bg-success transition-all"
+                        style={{
+                          width: `${o.progress ?? o.completion_percentage ?? 0}%`,
+                        }}
+                      />
+                    </div>
+                    <div className="mt-1 text-right text-xs font-semibold text-success">
+                      {o.progress ?? o.completion_percentage ?? 0}%
+                    </div>
                   </div>
-                )}
-              </>
+                  <button className="rounded-full bg-muted p-1.5 sm:p-2 hover:bg-secondary shrink-0">
+                    <ChevronRight size={15} />
+                  </button>
+                </div>
+              ))
             )}
           </div>
         </Card>
@@ -382,65 +372,118 @@ function Overview() {
         </Card>
       </div>
 
-      {/* Recent orders */}
+      {/* Measurements — collapsible */}
       <Card delay={0.2}>
-        <div className="flex items-center justify-between">
-          <h2 className="font-display text-lg sm:text-xl font-semibold">
-            Recent orders
-          </h2>
-          <Link
-            to="/dashboard/orders"
-            className="text-xs sm:text-sm font-semibold text-primary hover:underline"
-          >
-            View all
-          </Link>
-        </div>
-        <div className="mt-4 sm:mt-5 divide-y divide-border">
-          {ordersArr.length === 0 ? (
-            <div className="rounded-3xl border border-border bg-muted p-6 sm:p-8 text-center text-sm text-muted-foreground">
-              No recent orders yet.
+        <button
+          type="button"
+          onClick={() => setMeasurementsOpen((v) => !v)}
+          className="flex w-full items-center justify-between gap-3 text-left"
+          aria-expanded={measurementsOpen}
+        >
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+              <Ruler size={16} />
             </div>
-          ) : (
-            ordersArr.slice(0, 3).map((o: any, i: number) => (
-              <div
-                key={o.id ?? i}
-                className="flex items-center gap-3 sm:gap-4 py-3 sm:py-4"
-              >
-                <div className="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-2xl gradient-cream text-primary">
-                  <Shirt size={18} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm sm:text-base font-semibold truncate">
-                    {o.title ?? o.name ?? `${o.outfit_category ?? ""}`}
-                  </div>
-                  <div className="text-[11px] sm:text-xs text-muted-foreground flex items-center gap-1.5">
-                    <Clock size={11} />{" "}
-                    {o.estimated_timeline_days
-                      ? `ETA ${o.estimated_timeline_days} days`
-                      : ""}{" "}
-                    · {o.tailor_name ?? o.tailor?.name ?? ""}
-                  </div>
-                </div>
-                <div className="hidden sm:block flex-1 min-w-[120px]">
-                  <div className="h-2 overflow-hidden rounded-full bg-muted">
-                    <div
-                      className="h-full rounded-full bg-success transition-all"
-                      style={{
-                        width: `${o.progress ?? o.completion_percentage ?? 0}%`,
-                      }}
-                    />
-                  </div>
-                  <div className="mt-1 text-right text-xs font-semibold text-success">
-                    {o.progress ?? o.completion_percentage ?? 0}%
-                  </div>
-                </div>
-                <button className="rounded-full bg-muted p-1.5 sm:p-2 hover:bg-secondary shrink-0">
-                  <ChevronRight size={15} />
-                </button>
+            <div className="min-w-0">
+              <h2 className="font-display text-lg sm:text-xl font-semibold leading-tight">
+                My measurements
+                {isFetching && !isLoading && (
+                  <Loader2
+                    size={12}
+                    className="ml-2 inline-block animate-spin text-muted-foreground"
+                  />
+                )}
+              </h2>
+              {!measurementsOpen && (
+                <p className="mt-0.5 truncate text-[11px] sm:text-xs text-muted-foreground">
+                  {isLoading
+                    ? "Loading…"
+                    : measurementEntries.length === 0
+                      ? "No measurements recorded yet"
+                      : measurementEntries
+                          .slice(0, 4)
+                          .map(([k, v]) => `${k} ${v}`)
+                          .join(" · ")}
+                </p>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <Link
+              to="/dashboard/measurements"
+              onClick={(e) => e.stopPropagation()}
+              className="hidden sm:inline text-xs sm:text-sm font-semibold text-primary hover:underline"
+            >
+              Manage
+            </Link>
+            <ChevronDown
+              size={18}
+              className={`text-muted-foreground transition-transform ${
+                measurementsOpen ? "rotate-180" : ""
+              }`}
+            />
+          </div>
+        </button>
+
+        <AnimatePresence initial={false}>
+          {measurementsOpen && (
+            <motion.div
+              key="m-body"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              className="overflow-hidden"
+            >
+              <div className="mt-4 flex flex-wrap gap-1.5 sm:gap-2">
+                {sections.map((section) => (
+                  <button
+                    key={section.key}
+                    type="button"
+                    onClick={() => setSelectedSection(section.key)}
+                    className={`rounded-full px-3 sm:px-4 py-1 sm:py-1.5 text-xs font-medium transition-colors ${
+                      selectedSection === section.key
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground hover:bg-secondary"
+                    }`}
+                  >
+                    {section.label}
+                  </button>
+                ))}
               </div>
-            ))
+
+              <div className="mt-3 sm:mt-5 grid grid-cols-2 gap-2 sm:gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                {isLoading ? (
+                  <div className="col-span-full flex items-center justify-center py-6 sm:py-8 text-sm text-muted-foreground">
+                    <Loader2 size={14} className="animate-spin" />
+                    <span className="ml-2">Loading measurements…</span>
+                  </div>
+                ) : (
+                  <>
+                    {measurementEntries.map(([label, value]) => (
+                      <div
+                        key={label}
+                        className="rounded-2xl border border-border bg-background p-3 sm:p-4"
+                      >
+                        <div className="text-[11px] sm:text-xs text-muted-foreground capitalize">
+                          {label}
+                        </div>
+                        <div className="mt-1 font-display text-xl sm:text-2xl font-bold">
+                          {String(value) || "—"}
+                        </div>
+                      </div>
+                    ))}
+                    {measurementEntries.length === 0 && (
+                      <div className="col-span-full text-center py-6 sm:py-8 text-sm text-muted-foreground">
+                        No measurements recorded yet
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            </motion.div>
           )}
-        </div>
+        </AnimatePresence>
       </Card>
     </div>
   );
