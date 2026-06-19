@@ -46,6 +46,7 @@ const quickActions = [
     tone: "primary",
     to: "/dashboard/create" as const,
     search: undefined,
+    bgTone: "text-primary",
   },
   {
     icon: Scissors,
@@ -54,6 +55,7 @@ const quickActions = [
     tone: "accent",
     to: "/dashboard/explore/" as const,
     search: { tab: "my" as const },
+    bgTone: "text-accent",
   },
   {
     icon: ShieldCheck,
@@ -62,6 +64,7 @@ const quickActions = [
     tone: "success",
     to: "/dashboard/explore/" as const,
     search: { tab: "browse" as const },
+    bgTone: "text-success",
   },
   {
     icon: MapPin,
@@ -70,6 +73,7 @@ const quickActions = [
     tone: "primary",
     to: "/dashboard/explore/" as const,
     search: { tab: "browse" as const },
+    bgTone: "text-primary",
   },
 ] as const;
 
