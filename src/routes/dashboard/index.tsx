@@ -173,7 +173,10 @@ function Overview() {
             </p>
           </div>
           <div className="flex gap-2 sm:gap-3">
-            <Link to="/dashboard/create">
+            <Link
+              to="/dashboard/create"
+              search={{ tailor_id: undefined, draft_id: undefined }}
+            >
               <Button variant="accent" size="sm" className="sm:size-lg">
                 New order <Plus size={14} />
               </Button>
