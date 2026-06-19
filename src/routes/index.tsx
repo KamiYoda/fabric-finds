@@ -1071,7 +1071,7 @@ function Features() {
       subtitle: "Marketplace",
       desc: "Need to get fabric materials? Get from verified i-sew merchants without stress.",
     },
-  ];
+  ] as const;
   return (
     <section id="features" className="relative overflow-hidden py-24 sm:py-32">
       <Blobs />

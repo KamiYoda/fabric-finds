@@ -88,18 +88,18 @@ export interface WalletTransactionsParams {
 // ─── API Calls ────────────────────────────────────────────────────────────────
 
 export async function getWalletBalance(): Promise<WalletBalance> {
-  const res = await apiRequest<{ data: WalletBalance }>(
-    "GET",
-    "/wallet/balance",
-  );
+  const res = await apiRequest<{ data: WalletBalance }>("/wallet/balance", {
+    method: "GET",
+    auth: true,
+  });
   return res.data;
 }
 
 export async function getWallet(): Promise<WalletBalance> {
-  const res = await apiRequest<{ data: WalletBalance }>(
-    "GET",
-    "/wallet/balance",
-  );
+  const res = await apiRequest<{ data: WalletBalance }>("/wallet/balance", {
+    method: "GET",
+    auth: true,
+  });
   return res.data;
 }
 
@@ -111,8 +111,8 @@ export async function getWalletTransactions(
   if (params.page) query.set("page", String(params.page));
   if (params.per_page) query.set("per_page", String(params.per_page));
   const res = await apiRequest<{ data: WalletTransaction[] }>(
-    "GET",
     `/wallet/transactions?${query.toString()}`,
+    { method: "GET", auth: true },
   );
   return res.data;
 }
@@ -125,8 +125,8 @@ export async function groupTransactionsByDate(
   if (params.page) query.set("page", String(params.page));
   if (params.per_page) query.set("per_page", String(params.per_page));
   const res = await apiRequest<{ data: WalletTransaction[] }>(
-    "GET",
     `/wallet/transactions?${query.toString()}`,
+    { method: "GET", auth: true },
   );
   return res.data;
 }
@@ -139,8 +139,8 @@ export async function TransactionType(
   if (params.page) query.set("page", String(params.page));
   if (params.per_page) query.set("per_page", String(params.per_page));
   const res = await apiRequest<{ data: WalletTransaction[] }>(
-    "GET",
     `/wallet/transactions?${query.toString()}`,
+    { method: "GET", auth: true },
   );
   return res.data;
 }
