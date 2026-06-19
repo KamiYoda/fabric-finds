@@ -150,7 +150,9 @@ export function statusToStage(status: OrderStatus): UIStage {
 }
 
 // Map API status → orders list tab
-export type OrderTab = "Pending" | "Ongoing" | "Completed";
+export type OrderTab = "Pending" | "Ongoing" | "Completed" | "Drafts";
+export type Order = ApiOrder;
+export type Stage = UIStage;
 
 export function statusToTab(status: OrderStatus): OrderTab {
   switch (status) {

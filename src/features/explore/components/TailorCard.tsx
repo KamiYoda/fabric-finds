@@ -1,6 +1,5 @@
 import { memo, useCallback, useState } from "react";
 import { Star, MapPin, BadgeCheck, Heart } from "lucide-react";
-import { useMutation } from "@tanstack/react-query";
 import type { Tailor } from "@/features/tailors/types";
 import { saveTailor } from "@/lib/api/tailors";
 
@@ -43,10 +42,10 @@ export const TailorCard = memo(
         <div className="aspect-[3/4] overflow-hidden bg-muted">
           <img
             src={
-              tailor.user?.profile_photo ||
+              tailor.avatar ||
               "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=400&q=70"
             }
-            alt={tailor.business_name}
+            alt={tailor.name}
             className="h-full w-full object-cover"
           />
         </div>
