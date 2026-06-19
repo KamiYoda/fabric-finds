@@ -107,9 +107,21 @@ export default function WalletPage() {
   const [query, setQuery] = useState("");
   const [walletTab, setWalletTab] = useState<WalletTab>("all");
 
+  const { data: summaryData } = useQuery({
+    queryKey: ["wallet-spending-summary"],
+    queryFn: () => getSpendingSummary(),
+    retry: false,
+  });
+  const summary: SpendingSummaryItem[] =
+    summaryData && summaryData.length > 0 ? summaryData : MOCK_SUMMARY;
+
+  const { pendingEscrow, released, totalSpent } = useMemo(() => {
+    const p = summary.reduce((s, i) => s + Number(i.pending || 0), 0);
+    const r = summary.reduce((s, i) => s + Number(i.released || 0), 0);
+    return { pendingEscrow: p, released: r, totalSpent: p + r };
+  }, [summary]);
+
   const available = 62_500;
-  const locked = 37_500;
-  const total = available + locked;
 
   const mask = (v: string) => (hidden ? "₦••••••" : v);
 
