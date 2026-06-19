@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
 import {
   Wallet as WalletIcon,
   Plus,
@@ -10,6 +11,7 @@ import {
   EyeOff,
   Copy,
   Check,
+  CheckCircle2,
   TrendingUp,
   Search,
   Filter,
@@ -23,6 +25,12 @@ import {
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/Button";
 import { OrderTransactionsSection } from "../components/OrderTransactionsSection";
+import { getSpendingSummary, type SpendingSummaryItem } from "@/lib/api/wallet";
+
+const MOCK_SUMMARY: SpendingSummaryItem[] = [
+  { order_id: "mock-order-1", order_name: "Ankara Senator Suit", spending: 40000, pending: 25000, released: 15000 },
+  { order_id: "mock-order-2", order_name: "Aso Ebi Wedding Gown", spending: 42000, pending: 42000, released: 0 },
+];
 
 function Card({ children, className = "", delay = 0 }: any) {
   return (
