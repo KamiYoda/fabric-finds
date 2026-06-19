@@ -169,44 +169,7 @@ export function OrderTransactionsSection() {
       transition={{ duration: 0.4, delay: 0.1 }}
       className="space-y-4"
     >
-      {/* Header card */}
-      <div className="rounded-3xl border border-border bg-card p-4 sm:p-6 shadow-soft">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h2 className="font-display text-lg sm:text-xl font-semibold">
-              Order transactions
-            </h2>
-            <p className="text-xs text-muted-foreground">
-              Payments grouped by order
-            </p>
-          </div>
-          <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-            <Receipt size={16} />
-          </div>
-        </div>
-
-        {/* Summary pills — NOT clickable */}
-        <div className="mt-4 grid grid-cols-1 gap-2.5 sm:grid-cols-3">
-          <SummaryPill
-            label="Pending escrow"
-            value={totals.pending}
-            tone="accent"
-            Icon={Lock}
-          />
-          <SummaryPill
-            label="Released"
-            value={totals.released}
-            tone="success"
-            Icon={CheckCircle2}
-          />
-          <SummaryPill
-            label="Total spent"
-            value={totals.total}
-            tone="primary"
-            Icon={WalletIcon}
-          />
-        </div>
-      </div>
+      {/* Summary moved to main wallet hero card */}
 
       {/* Grouped order cards */}
       {loading ? (

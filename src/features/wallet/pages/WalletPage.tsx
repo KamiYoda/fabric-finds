@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
 import {
   Wallet as WalletIcon,
   Plus,
@@ -10,6 +11,7 @@ import {
   EyeOff,
   Copy,
   Check,
+  CheckCircle2,
   TrendingUp,
   Search,
   Filter,
@@ -23,6 +25,12 @@ import {
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/Button";
 import { OrderTransactionsSection } from "../components/OrderTransactionsSection";
+import { getSpendingSummary, type SpendingSummaryItem } from "@/lib/api/wallet";
+
+const MOCK_SUMMARY: SpendingSummaryItem[] = [
+  { order_id: "mock-order-1", order_name: "Ankara Senator Suit", spending: 40000, pending: 25000, released: 15000 },
+  { order_id: "mock-order-2", order_name: "Aso Ebi Wedding Gown", spending: 42000, pending: 42000, released: 0 },
+];
 
 function Card({ children, className = "", delay = 0 }: any) {
   return (
@@ -99,9 +107,21 @@ export default function WalletPage() {
   const [query, setQuery] = useState("");
   const [walletTab, setWalletTab] = useState<WalletTab>("all");
 
+  const { data: summaryData } = useQuery({
+    queryKey: ["wallet-spending-summary"],
+    queryFn: () => getSpendingSummary(),
+    retry: false,
+  });
+  const summary: SpendingSummaryItem[] =
+    summaryData && summaryData.length > 0 ? summaryData : MOCK_SUMMARY;
+
+  const { pendingEscrow, released, totalSpent } = useMemo(() => {
+    const p = summary.reduce((s, i) => s + Number(i.pending || 0), 0);
+    const r = summary.reduce((s, i) => s + Number(i.released || 0), 0);
+    return { pendingEscrow: p, released: r, totalSpent: p + r };
+  }, [summary]);
+
   const available = 62_500;
-  const locked = 37_500;
-  const total = available + locked;
 
   const mask = (v: string) => (hidden ? "₦••••••" : v);
 
@@ -180,42 +200,47 @@ export default function WalletPage() {
             </div>
           </div>
 
-          <div className="flex gap-2.5 sm:gap-3 overflow-x-auto pb-0.5 lg:grid lg:grid-cols-2 lg:overflow-visible lg:pb-0">
-            <Link
-              to="/dashboard/wallet/spending"
-              className="min-w-[140px] sm:min-w-0 shrink-0 rounded-2xl bg-white/10 p-3 sm:p-4 backdrop-blur border border-white/15 transition-colors hover:bg-white/15 lg:min-w-0"
-            >
+          <div className="grid grid-cols-3 gap-2 sm:gap-3 lg:grid-cols-1 lg:gap-2.5">
+            <div className="rounded-2xl bg-white/10 p-3 sm:p-4 backdrop-blur border border-white/15">
               <div className="flex items-center justify-between">
-                <p className="text-[11px] sm:text-xs text-primary-foreground/70">
-                  Locked
+                <p className="text-[10px] sm:text-xs text-primary-foreground/70">
+                  Pending escrow
                 </p>
                 <div className="flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-lg bg-accent/30">
                   <Lock size={11} />
                 </div>
               </div>
-              <div className="mt-1.5 sm:mt-2 font-display text-lg sm:text-2xl font-bold tabular-nums">
-                {mask(fmt(locked))}
+              <div className="mt-1.5 sm:mt-2 font-display text-base sm:text-xl font-bold tabular-nums">
+                {mask(fmt(pendingEscrow))}
               </div>
-              <p className="mt-0.5 sm:mt-1 text-[10px] sm:text-[11px] text-primary-foreground/60">
-                In escrow · view
-              </p>
-            </Link>
+            </div>
 
-            <div className="min-w-[140px] sm:min-w-0 shrink-0 rounded-2xl bg-white/10 p-3 sm:p-4 backdrop-blur border border-white/15 lg:min-w-0">
+            <div className="rounded-2xl bg-white/10 p-3 sm:p-4 backdrop-blur border border-white/15">
               <div className="flex items-center justify-between">
-                <p className="text-[11px] sm:text-xs text-primary-foreground/70">
-                  Total
+                <p className="text-[10px] sm:text-xs text-primary-foreground/70">
+                  Released
                 </p>
                 <div className="flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-lg bg-success/30">
-                  <TrendingUp size={11} />
+                  <CheckCircle2 size={11} />
                 </div>
               </div>
-              <div className="mt-1.5 sm:mt-2 font-display text-lg sm:text-2xl font-bold tabular-nums">
-                {mask(fmt(total))}
+              <div className="mt-1.5 sm:mt-2 font-display text-base sm:text-xl font-bold tabular-nums">
+                {mask(fmt(released))}
               </div>
-              <p className="mt-0.5 sm:mt-1 text-[10px] sm:text-[11px] text-primary-foreground/60">
-                Available + locked
-              </p>
+            </div>
+
+            <div className="rounded-2xl bg-white/10 p-3 sm:p-4 backdrop-blur border border-white/15">
+              <div className="flex items-center justify-between">
+                <p className="text-[10px] sm:text-xs text-primary-foreground/70">
+                  Total spent
+                </p>
+                <div className="flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-lg bg-white/20">
+                  <WalletIcon size={11} />
+                </div>
+              </div>
+              <div className="mt-1.5 sm:mt-2 font-display text-base sm:text-xl font-bold tabular-nums">
+                {mask(fmt(totalSpent))}
+              </div>
             </div>
           </div>
         </div>
