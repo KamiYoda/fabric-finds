@@ -1,6 +1,6 @@
 import { createFileRoute, Link as RouterLink } from "@tanstack/react-router";
 const Link = RouterLink;
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
@@ -11,7 +11,9 @@ import {
   MapPin,
   Plus,
   ChevronRight,
+  ChevronDown,
   Clock,
+  Ruler,
 } from "lucide-react";
 import { Button } from "../../components/Button";
 import { useAuth } from "@/features/auth/hooks/useAuth";
