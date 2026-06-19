@@ -109,7 +109,7 @@ export function MerchantChatPage({
           onClick={() =>
             navigate({
               to: "/dashboard/merchants/order/$orderRef/pay" as any,
-              params: { orderRef },
+              params: { orderRef } as any,
             })
           }
           className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground"

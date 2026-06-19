@@ -34,7 +34,7 @@ function RouteComponent() {
     });
     navigate({
       to: "/dashboard/merchants/order/$orderRef" as any,
-      params: { orderRef: res.id },
+      params: { orderRef: res.id } as any,
     });
   };
 

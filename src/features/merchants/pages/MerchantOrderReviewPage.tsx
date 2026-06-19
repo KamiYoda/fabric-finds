@@ -82,11 +82,11 @@ export function MerchantOrderReviewPage({
           awaitingFee
             ? navigate({
                 to: "/dashboard/merchants/order/$orderRef/chat" as any,
-                params: { orderRef },
+                params: { orderRef } as any,
               })
             : navigate({
                 to: "/dashboard/merchants/order/$orderRef/pay" as any,
-                params: { orderRef },
+                params: { orderRef } as any,
               })
         }
         className="mt-8 w-full"

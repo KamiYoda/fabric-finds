@@ -22,7 +22,7 @@ export function MerchantOrderPayPage({
     clear();
     navigate({
       to: "/dashboard/merchants/order/$orderRef/success" as any,
-      params: { orderRef },
+      params: { orderRef } as any,
     });
   };
 
