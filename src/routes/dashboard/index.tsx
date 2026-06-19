@@ -128,6 +128,7 @@ function Overview() {
 
   const [selectedSection, setSelectedSection] =
     useState<(typeof sections)[number]["key"]>("upper");
+  const [measurementsOpen, setMeasurementsOpen] = useState(false);
   const selectedMeasurement = measurementsArr[0];
 
   const measurementEntries = useMemo(() => {
