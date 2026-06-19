@@ -1,4 +1,4 @@
-import { memo, useState, useCallback, useMemo } from "react";
+import { memo, useState, useCallback } from "react";
 import { useRouter } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
@@ -8,8 +8,9 @@ import { TailorProfileModal } from "../../../components/modals/TailorProfileModa
 import { getTailors } from "@/lib/api/tailors";
 import type { Tailor } from "@/features/tailors/types";
 import { MyTailorsCard } from "../components/MyTailorsCard";
+import { MerchantsExploreSection } from "@/features/merchants";
 
-type Tab = "browse" | "my";
+type Tab = "browse" | "my" | "merchants";
 
 const REGIONS = ["Lagos", "Abuja", "Port Harcourt", "Kano", "Ibadan"];
 

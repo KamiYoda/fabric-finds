@@ -32,7 +32,7 @@ export function MerchantsExploreSection() {
   const merchants = data?.items ?? [];
 
   const handleClick = (m: Merchant) => {
-    navigate({ to: "/dashboard/merchants/$merchantId", params: { merchantId: m.id } });
+    navigate({ to: "/dashboard/merchants/$merchantId" as any, params: { merchantId: m.id } as any });
   };
 
   return (
