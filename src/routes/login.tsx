@@ -99,9 +99,6 @@ function LoginPage() {
               value={password}
               onChange={(e: any) => setPassword(e.target.value)}
             />
-            {error ? (
-              <div className="text-sm text-destructive">{error}</div>
-            ) : null}
             <div className="flex items-center justify-between text-sm">
               <label className="inline-flex items-center gap-2 text-muted-foreground">
                 <input

@@ -68,8 +68,6 @@ const SPRING = {
   mass: 0.8,
 };
 
-const EASE_OUT = [0.22, 1, 0.36, 1] as const;
-
 const fadeUp = {
   initial: { opacity: 0, y: 18 },
   whileInView: { opacity: 1, y: 0 },
@@ -79,7 +77,7 @@ const fadeUp = {
   },
   transition: {
     duration: 0.55,
-    ease: EASE_OUT,
+    ease: [0.22, 1, 0.36, 1],
   },
 };
 
@@ -1071,7 +1069,7 @@ function Features() {
       subtitle: "Marketplace",
       desc: "Need to get fabric materials? Get from verified i-sew merchants without stress.",
     },
-  ] as const;
+  ];
   return (
     <section id="features" className="relative overflow-hidden py-24 sm:py-32">
       <Blobs />

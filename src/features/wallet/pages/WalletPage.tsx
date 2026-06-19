@@ -17,18 +17,12 @@ import {
   Scissors,
   Banknote,
   RefreshCcw,
+  Receipt,
+  List,
 } from "lucide-react";
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-} from "recharts";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/Button";
+import { OrderTransactionsSection } from "../components/OrderTransactionsSection";
 
 function Card({ children, className = "", delay = 0 }: any) {
   return (
@@ -36,22 +30,12 @@ function Card({ children, className = "", delay = 0 }: any) {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay }}
-      className={`rounded-3xl border border-border bg-card p-6 shadow-soft ${className}`}
+      className={`rounded-3xl border border-border bg-card p-4 sm:p-6 shadow-soft ${className}`}
     >
       {children}
     </motion.div>
   );
 }
-
-const balanceHistory = [
-  { day: "Apr 1", balance: 1_650_000 },
-  { day: "Apr 5", balance: 2_120_000 },
-  { day: "Apr 8", balance: 1_950_000 },
-  { day: "Apr 10", balance: 2_300_000 },
-  { day: "Apr 12", balance: 2_180_000 },
-  { day: "Apr 15", balance: 2_650_000 },
-  { day: "Apr 17", balance: 2_480_000 },
-];
 
 const transactions = [
   {
@@ -104,6 +88,8 @@ const transactions = [
 const fmt = (n: number) =>
   `${n < 0 ? "-" : ""}₦${Math.abs(n).toLocaleString("en-NG")}`;
 
+type WalletTab = "all" | "orders";
+
 export default function WalletPage() {
   const [hidden, setHidden] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -111,6 +97,7 @@ export default function WalletPage() {
     "all",
   );
   const [query, setQuery] = useState("");
+  const [walletTab, setWalletTab] = useState<WalletTab>("all");
 
   const available = 62_500;
   const locked = 37_500;
@@ -134,97 +121,99 @@ export default function WalletPage() {
   };
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
-      {/* Header / Hero balance */}
+    <div className="mx-auto max-w-7xl space-y-4 sm:space-y-6">
+      {/* Hero balance card */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-3xl gradient-primary p-6 text-primary-foreground shadow-elegant sm:p-8"
+        className="relative overflow-hidden rounded-3xl gradient-primary p-4 sm:p-6 md:p-8 text-primary-foreground shadow-elegant"
       >
         <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-accent/25 blur-3xl" />
         <div className="absolute -left-16 -bottom-24 h-64 w-64 rounded-full bg-primary-glow/30 blur-3xl" />
 
-        <div className="relative grid gap-8 lg:grid-cols-[1.5fr_1fr] lg:items-end">
+        <div className="relative space-y-4 lg:space-y-0 lg:grid lg:grid-cols-[1.5fr_1fr] lg:items-end lg:gap-6">
           <div>
-            <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/15 backdrop-blur">
-                <WalletIcon size={20} />
+            <div className="flex items-center gap-2.5 sm:gap-3">
+              <div className="flex h-9 w-9 sm:h-11 sm:w-11 items-center justify-center rounded-2xl bg-white/15 backdrop-blur">
+                <WalletIcon size={18} className="sm:hidden" />
+                <WalletIcon size={20} className="hidden sm:block" />
               </div>
               <div>
-                <p className="text-xs uppercase tracking-wider text-primary-foreground/70">
+                <p className="text-[10px] sm:text-xs uppercase tracking-wider text-primary-foreground/70">
                   Wallet
                 </p>
-                <h1 className="font-display text-2xl font-bold sm:text-3xl">
-                  Manage your funds & escrow
-                </h1>
               </div>
             </div>
 
-            <div className="mt-6">
-              <p className="text-sm text-primary-foreground/70">
+            <div className="mt-4 sm:mt-6">
+              <p className="text-xs sm:text-sm text-primary-foreground/70">
                 Available balance
               </p>
-              <div className="mt-1 flex items-center gap-3">
-                <div className="font-display text-4xl font-bold sm:text-5xl">
+              <div className="mt-1 flex items-center gap-2 sm:gap-3">
+                <div className="font-display text-3xl font-bold sm:text-4xl md:text-5xl tabular-nums">
                   {mask(fmt(available))}
                 </div>
                 <button
                   onClick={() => setHidden((h) => !h)}
-                  className="rounded-full bg-white/10 p-2 transition-colors hover:bg-white/20"
+                  className="rounded-full bg-white/10 p-1.5 sm:p-2 transition-colors hover:bg-white/20"
                   aria-label={hidden ? "Show balance" : "Hide balance"}
                 >
-                  {hidden ? <Eye size={16} /> : <EyeOff size={16} />}
+                  {hidden ? <Eye size={14} /> : <EyeOff size={14} />}
                 </button>
               </div>
-              <p className="mt-2 inline-flex items-center gap-1 text-xs text-primary-foreground/70">
-                <TrendingUp size={12} /> +12.4% this month
+              <p className="mt-1.5 inline-flex items-center gap-1 text-xs text-primary-foreground/70">
+                <TrendingUp size={11} /> +12.4% this month
               </p>
             </div>
 
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Link to="/dashboard/wallet/topup">
-                <Button variant="accent" size="lg">
-                  <Plus size={16} /> Fund wallet
+            <div className="mt-4 sm:mt-6 flex flex-wrap gap-2 sm:gap-3">
+              <Link to="/dashboard/wallet/topup/">
+                <Button variant="accent" size="sm" className="sm:!py-2.5 sm:!px-5">
+                  <Plus size={14} /> Top-Up
                 </Button>
               </Link>
-              <Link to="/dashboard/wallet/withdraw">
-                <Button variant="glass" size="lg">
-                  <ArrowUpRight size={16} /> Withdraw
+              <Link to="/dashboard/wallet/withdraw/">
+                <Button variant="glass" size="sm" className="sm:!py-2.5 sm:!px-5">
+                  <ArrowUpRight size={14} /> Withdraw
                 </Button>
               </Link>
             </div>
           </div>
 
-          {/* Sub-balance pills */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="flex gap-2.5 sm:gap-3 overflow-x-auto pb-0.5 lg:grid lg:grid-cols-2 lg:overflow-visible lg:pb-0">
             <Link
               to="/dashboard/wallet/spending"
-              className="rounded-2xl bg-white/10 p-4 backdrop-blur border border-white/15 transition-colors hover:bg-white/15"
+              className="min-w-[140px] sm:min-w-0 shrink-0 rounded-2xl bg-white/10 p-3 sm:p-4 backdrop-blur border border-white/15 transition-colors hover:bg-white/15 lg:min-w-0"
             >
               <div className="flex items-center justify-between">
-                <p className="text-xs text-primary-foreground/70">Locked</p>
-                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent/30">
-                  <Lock size={12} />
+                <p className="text-[11px] sm:text-xs text-primary-foreground/70">
+                  Locked
+                </p>
+                <div className="flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-lg bg-accent/30">
+                  <Lock size={11} />
                 </div>
               </div>
-              <div className="mt-2 font-display text-2xl font-bold">
+              <div className="mt-1.5 sm:mt-2 font-display text-lg sm:text-2xl font-bold tabular-nums">
                 {mask(fmt(locked))}
               </div>
-              <p className="mt-1 text-[11px] text-primary-foreground/60">
+              <p className="mt-0.5 sm:mt-1 text-[10px] sm:text-[11px] text-primary-foreground/60">
                 In escrow · view
               </p>
             </Link>
-            <div className="rounded-2xl bg-white/10 p-4 backdrop-blur border border-white/15">
+
+            <div className="min-w-[140px] sm:min-w-0 shrink-0 rounded-2xl bg-white/10 p-3 sm:p-4 backdrop-blur border border-white/15 lg:min-w-0">
               <div className="flex items-center justify-between">
-                <p className="text-xs text-primary-foreground/70">Total</p>
-                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-success/30">
-                  <TrendingUp size={12} />
+                <p className="text-[11px] sm:text-xs text-primary-foreground/70">
+                  Total
+                </p>
+                <div className="flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-lg bg-success/30">
+                  <TrendingUp size={11} />
                 </div>
               </div>
-              <div className="mt-2 font-display text-2xl font-bold">
+              <div className="mt-1.5 sm:mt-2 font-display text-lg sm:text-2xl font-bold tabular-nums">
                 {mask(fmt(total))}
               </div>
-              <p className="mt-1 text-[11px] text-primary-foreground/60">
+              <p className="mt-0.5 sm:mt-1 text-[10px] sm:text-[11px] text-primary-foreground/60">
                 Available + locked
               </p>
             </div>
@@ -232,248 +221,148 @@ export default function WalletPage() {
         </div>
       </motion.div>
 
-      {/* Chart + Virtual account */}
-      <div className="grid gap-6 lg:grid-cols-3">
-        <Card delay={0.1} className="lg:col-span-2">
+      {/* Tab switcher */}
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15 }}
+        className="flex gap-1 rounded-full bg-muted p-1"
+      >
+        <button
+          onClick={() => setWalletTab("all")}
+          className={`flex flex-1 items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium transition-all ${
+            walletTab === "all"
+              ? "bg-card text-foreground shadow-soft"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <List size={14} /> All Transactions
+        </button>
+        <button
+          onClick={() => setWalletTab("orders")}
+          className={`flex flex-1 items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium transition-all ${
+            walletTab === "orders"
+              ? "bg-card text-foreground shadow-soft"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <Receipt size={14} /> Order Transactions
+        </button>
+      </motion.div>
+
+      {/* Tab content */}
+      {walletTab === "all" ? (
+        <Card delay={0.2}>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h2 className="font-display text-xl font-semibold">
-                Balance history
+              <h2 className="font-display text-lg sm:text-xl font-semibold">
+                Transactions
               </h2>
-              <p className="text-xs text-muted-foreground">Last 17 days</p>
+              <p className="text-xs text-muted-foreground">All wallet activity</p>
             </div>
-            <div className="flex gap-1 rounded-full bg-muted p-1 text-xs">
-              {["7D", "30D", "90D"].map((r, i) => (
-                <button
-                  key={r}
-                  className={`rounded-full px-3 py-1 font-medium transition-colors ${
-                    i === 1
-                      ? "bg-card text-foreground shadow-soft"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  {r}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="mt-5 h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart
-                data={balanceHistory}
-                margin={{ left: 0, right: 8, top: 8, bottom: 0 }}
-              >
-                <defs>
-                  <linearGradient id="balanceFill" x1="0" y1="0" x2="0" y2="1">
-                    <stop
-                      offset="0%"
-                      stopColor="var(--color-primary)"
-                      stopOpacity={0.35}
-                    />
-                    <stop
-                      offset="100%"
-                      stopColor="var(--color-primary)"
-                      stopOpacity={0}
-                    />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid
-                  stroke="var(--color-border)"
-                  strokeDasharray="4 4"
-                  vertical={false}
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="relative">
+                <Search
+                  size={13}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
                 />
-                <XAxis
-                  dataKey="day"
-                  stroke="var(--color-muted-foreground)"
-                  fontSize={11}
-                  tickLine={false}
-                  axisLine={false}
+                <input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Search"
+                  className="h-8 w-36 sm:h-9 sm:w-44 rounded-full border border-border bg-background pl-8 pr-3 text-xs sm:text-sm outline-none focus:border-primary"
                 />
-                <YAxis
-                  stroke="var(--color-muted-foreground)"
-                  fontSize={11}
-                  tickLine={false}
-                  axisLine={false}
-                  tickFormatter={(v) => `₦${(v / 1_000_000).toFixed(1)}M`}
-                  width={48}
-                />
-                <Tooltip
-                  contentStyle={{
-                    background: "var(--color-card)",
-                    border: "1px solid var(--color-border)",
-                    borderRadius: 12,
-                    fontSize: 12,
-                  }}
-                  formatter={(v: number) => [fmt(v), "Balance"]}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="balance"
-                  stroke="var(--color-primary)"
-                  strokeWidth={2.5}
-                  fill="url(#balanceFill)"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
-
-        <Card delay={0.15}>
-          <div className="flex items-center justify-between">
-            <h2 className="font-display text-xl font-semibold">
-              Virtual account
-            </h2>
-            <span className="rounded-full bg-success/15 px-2 py-0.5 text-[11px] font-semibold text-success">
-              Active
-            </span>
-          </div>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Send funds here to top up instantly.
-          </p>
-
-          <div className="mt-5 space-y-3">
-            <div className="rounded-2xl border border-border bg-background p-4">
-              <p className="text-xs text-muted-foreground">Account name</p>
-              <p className="mt-1 font-semibold">i-sew / Seyi Adebayo</p>
-            </div>
-            <div className="rounded-2xl border border-border bg-background p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-muted-foreground">
-                    Account number
-                  </p>
-                  <p className="mt-1 font-display text-xl font-bold tracking-wider">
-                    8012345678
-                  </p>
-                </div>
-                <button
-                  onClick={() => copy("8012345678")}
-                  className="flex h-9 w-9 items-center justify-center rounded-xl bg-muted text-primary transition-colors hover:bg-secondary"
-                  aria-label="Copy account number"
-                >
-                  {copied ? <Check size={16} /> : <Copy size={16} />}
-                </button>
               </div>
-            </div>
-            <div className="rounded-2xl border border-border bg-background p-4">
-              <p className="text-xs text-muted-foreground">Bank</p>
-              <p className="mt-1 font-semibold">Wema Bank</p>
+              <button className="flex h-8 sm:h-9 items-center gap-1.5 rounded-full border border-border bg-background px-2.5 sm:px-3 text-xs font-medium text-muted-foreground hover:text-foreground">
+                <Filter size={13} /> Export
+              </button>
             </div>
           </div>
-          <p className="mt-4 text-[11px] text-muted-foreground">
-            Funds sent to this account are credited automatically within
-            minutes.
-          </p>
-        </Card>
-      </div>
 
-      {/* Transactions */}
-      <Card delay={0.2}>
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h2 className="font-display text-xl font-semibold">Transactions</h2>
-            <p className="text-xs text-muted-foreground">All wallet activity</p>
+          <div className="mt-3 sm:mt-4 flex flex-wrap gap-1.5 sm:gap-2">
+            {(
+              [
+                { k: "all", l: "All" },
+                { k: "credit", l: "Credit" },
+                { k: "debit", l: "Debit" },
+                { k: "escrow", l: "Pending" },
+              ] as const
+            ).map((t) => (
+              <button
+                key={t.k}
+                onClick={() => setFilter(t.k)}
+                className={`rounded-full px-3 sm:px-4 py-1 sm:py-1.5 text-xs font-medium transition-colors ${
+                  filter === t.k
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground hover:bg-secondary"
+                }`}
+              >
+                {t.l}
+              </button>
+            ))}
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="relative">
-              <Search
-                size={14}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-              />
-              <input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search"
-                className="h-9 w-44 rounded-full border border-border bg-background pl-9 pr-3 text-sm outline-none focus:border-primary"
-              />
-            </div>
-            <button className="flex h-9 items-center gap-2 rounded-full border border-border bg-background px-3 text-xs font-medium text-muted-foreground hover:text-foreground">
-              <Filter size={14} /> Export
-            </button>
-          </div>
-        </div>
 
-        <div className="mt-4 flex flex-wrap gap-2">
-          {(
-            [
-              { k: "all", l: "All" },
-              { k: "credit", l: "Inflow" },
-              { k: "debit", l: "Outflow" },
-              { k: "escrow", l: "Escrow" },
-            ] as const
-          ).map((t) => (
-            <button
-              key={t.k}
-              onClick={() => setFilter(t.k)}
-              className={`rounded-full px-4 py-1.5 text-xs font-medium transition-colors ${
-                filter === t.k
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground hover:bg-secondary"
-              }`}
-            >
-              {t.l}
-            </button>
-          ))}
-        </div>
-
-        <ul className="mt-4 divide-y divide-border">
-          {filtered.length === 0 && (
-            <li className="py-10 text-center text-sm text-muted-foreground">
-              No transactions match your filter.
-            </li>
-          )}
-          {filtered.map((t) => {
-            const Icon = t.icon;
-            const isCredit = t.amount > 0;
-            const isEscrow = t.type === "escrow";
-            const tone = isEscrow
-              ? "bg-accent/15 text-accent-foreground"
-              : isCredit
-                ? "bg-success/15 text-success"
-                : "gradient-cream text-primary";
-            return (
-              <li key={t.id}>
-                <Link
-                  to="/dashboard/wallet/transaction/$transactionId"
-                  params={{ transactionId: t.id }}
-                  className="flex items-center gap-4 rounded-2xl py-3.5 transition-colors hover:bg-muted/60"
-                >
-                  <div
-                    className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${tone}`}
-                  >
-                    <Icon size={18} />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate font-semibold">{t.title}</p>
-                    <p className="truncate text-xs text-muted-foreground">
-                      {t.meta}
-                    </p>
-                  </div>
-                  <div className="hidden text-xs text-muted-foreground sm:block">
-                    {t.date}
-                  </div>
-                  <div
-                    className={`flex items-center gap-1 font-display text-sm font-bold tabular-nums ${
-                      isEscrow
-                        ? "text-foreground"
-                        : isCredit
-                          ? "text-success"
-                          : "text-foreground"
-                    }`}
-                  >
-                    {isCredit ? (
-                      <ArrowDownLeft size={14} />
-                    ) : (
-                      <ArrowUpRight size={14} />
-                    )}
-                    {fmt(t.amount)}
-                  </div>
-                </Link>
+          <ul className="mt-3 sm:mt-4 divide-y divide-border">
+            {filtered.length === 0 && (
+              <li className="py-8 text-center text-sm text-muted-foreground">
+                No transactions match your filter.
               </li>
-            );
-          })}
-        </ul>
-      </Card>
+            )}
+            {filtered.map((t) => {
+              const Icon = t.icon;
+              const isCredit = t.amount > 0;
+              const isEscrow = t.type === "escrow";
+              const tone = isEscrow
+                ? "bg-accent/15 text-accent"
+                : isCredit
+                  ? "bg-success/15 text-success"
+                  : "gradient-cream text-destructive";
+              return (
+                <li key={t.id}>
+                  <Link
+                    to="/dashboard/wallet/transaction/$transactionId"
+                    params={{ transactionId: t.id }}
+                    className="flex items-center gap-3 sm:gap-4 rounded-2xl py-3 sm:py-3.5 transition-colors hover:bg-muted/60"
+                  >
+                    <div
+                      className={`flex h-9 w-9 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-2xl ${tone}`}
+                    >
+                      <Icon size={16} />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-semibold">{t.title}</p>
+                      <p className="truncate text-xs text-muted-foreground">
+                        {t.meta}
+                      </p>
+                    </div>
+                    <div className="hidden text-xs text-muted-foreground sm:block">
+                      {t.date}
+                    </div>
+                    <div
+                      className={`flex items-center gap-0.5 font-display text-xs sm:text-sm font-bold tabular-nums ${
+                        isEscrow
+                          ? "text-accent"
+                          : isCredit
+                            ? "text-success"
+                            : "text-destructive"
+                      }`}
+                    >
+                      {isCredit ? (
+                        <ArrowDownLeft size={13} />
+                      ) : (
+                        <ArrowUpRight size={13} />
+                      )}
+                      {fmt(t.amount)}
+                    </div>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </Card>
+      ) : (
+        <OrderTransactionsSection />
+      )}
     </div>
   );
 }

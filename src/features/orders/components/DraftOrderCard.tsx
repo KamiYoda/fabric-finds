@@ -29,7 +29,7 @@ export function DraftOrderCard({ order, onDeleted }: DraftOrderCardProps) {
   const handleEdit = () => {
     router.navigate({
       to: "/dashboard/create",
-      search: { tailor_id: undefined, draft_id: String(order.id) },
+      search: { draft_id: String(order.id) },
     });
   };
 

@@ -26,7 +26,8 @@ import { Route as DashboardExploreIndexRouteImport } from './routes/dashboard/ex
 import { Route as DashboardWalletWithdrawRouteImport } from './routes/dashboard/wallet/withdraw'
 import { Route as DashboardWalletTopupRouteImport } from './routes/dashboard/wallet/topup'
 import { Route as DashboardWalletSpendingRouteImport } from './routes/dashboard/wallet/spending'
-import { Route as DashboardMerchantsMerchantIdRouteImport } from './routes/dashboard/merchants/$merchantId'
+import { Route as DashboardWalletWithdrawIndexRouteImport } from './routes/dashboard/wallet/withdraw.index'
+import { Route as DashboardWalletTopupIndexRouteImport } from './routes/dashboard/wallet/topup.index'
 import { Route as DashboardOrdersOrderIdIndexRouteImport } from './routes/dashboard/orders/$orderId/index'
 import { Route as DashboardWalletWithdrawSuccessRouteImport } from './routes/dashboard/wallet/withdraw.success'
 import { Route as DashboardWalletWithdrawAddBankRouteImport } from './routes/dashboard/wallet/withdraw.add-bank'
@@ -36,13 +37,13 @@ import { Route as DashboardOrdersOrderIdRateRouteImport } from './routes/dashboa
 import { Route as DashboardOrdersOrderIdPayRouteImport } from './routes/dashboard/orders/$orderId/pay'
 import { Route as DashboardOrdersOrderIdFabricRouteImport } from './routes/dashboard/orders/$orderId/fabric'
 import { Route as DashboardOrdersOrderIdAcknowledgeRouteImport } from './routes/dashboard/orders/$orderId/acknowledge'
-import { Route as DashboardMerchantsOrderSelectTailorRouteImport } from './routes/dashboard/merchants/order/select-tailor'
-import { Route as DashboardMerchantsOrderDeliveryAddressRouteImport } from './routes/dashboard/merchants/order/delivery-address'
-import { Route as DashboardMerchantsOrderOrderRefIndexRouteImport } from './routes/dashboard/merchants/order/$orderRef/index'
+import { Route as DashboardExploreMerchantMerchantIdIndexRouteImport } from './routes/dashboard/explore/merchant.$merchantId.index'
 import { Route as DashboardWalletWithdrawAddBankSuccessRouteImport } from './routes/dashboard/wallet/withdraw.add-bank.success'
-import { Route as DashboardMerchantsOrderOrderRefSuccessRouteImport } from './routes/dashboard/merchants/order/$orderRef/success'
-import { Route as DashboardMerchantsOrderOrderRefPayRouteImport } from './routes/dashboard/merchants/order/$orderRef/pay'
-import { Route as DashboardMerchantsOrderOrderRefChatRouteImport } from './routes/dashboard/merchants/order/$orderRef/chat'
+import { Route as DashboardExploreMerchantMerchantIdTailorsRouteImport } from './routes/dashboard/explore/merchant.$merchantId.tailors'
+import { Route as DashboardExploreMerchantMerchantIdSuccessRouteImport } from './routes/dashboard/explore/merchant.$merchantId.success'
+import { Route as DashboardExploreMerchantMerchantIdReviewRouteImport } from './routes/dashboard/explore/merchant.$merchantId.review'
+import { Route as DashboardExploreMerchantMerchantIdPayRouteImport } from './routes/dashboard/explore/merchant.$merchantId.pay'
+import { Route as DashboardExploreMerchantMerchantIdChatRouteImport } from './routes/dashboard/explore/merchant.$merchantId.chat'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -129,11 +130,17 @@ const DashboardWalletSpendingRoute = DashboardWalletSpendingRouteImport.update({
   path: '/wallet/spending',
   getParentRoute: () => DashboardRouteRoute,
 } as any)
-const DashboardMerchantsMerchantIdRoute =
-  DashboardMerchantsMerchantIdRouteImport.update({
-    id: '/merchants/$merchantId',
-    path: '/merchants/$merchantId',
-    getParentRoute: () => DashboardRouteRoute,
+const DashboardWalletWithdrawIndexRoute =
+  DashboardWalletWithdrawIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => DashboardWalletWithdrawRoute,
+  } as any)
+const DashboardWalletTopupIndexRoute =
+  DashboardWalletTopupIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => DashboardWalletTopupRoute,
   } as any)
 const DashboardOrdersOrderIdIndexRoute =
   DashboardOrdersOrderIdIndexRouteImport.update({
@@ -189,22 +196,10 @@ const DashboardOrdersOrderIdAcknowledgeRoute =
     path: '/orders/$orderId/acknowledge',
     getParentRoute: () => DashboardRouteRoute,
   } as any)
-const DashboardMerchantsOrderSelectTailorRoute =
-  DashboardMerchantsOrderSelectTailorRouteImport.update({
-    id: '/merchants/order/select-tailor',
-    path: '/merchants/order/select-tailor',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
-const DashboardMerchantsOrderDeliveryAddressRoute =
-  DashboardMerchantsOrderDeliveryAddressRouteImport.update({
-    id: '/merchants/order/delivery-address',
-    path: '/merchants/order/delivery-address',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
-const DashboardMerchantsOrderOrderRefIndexRoute =
-  DashboardMerchantsOrderOrderRefIndexRouteImport.update({
-    id: '/merchants/order/$orderRef/',
-    path: '/merchants/order/$orderRef/',
+const DashboardExploreMerchantMerchantIdIndexRoute =
+  DashboardExploreMerchantMerchantIdIndexRouteImport.update({
+    id: '/explore/merchant/$merchantId/',
+    path: '/explore/merchant/$merchantId/',
     getParentRoute: () => DashboardRouteRoute,
   } as any)
 const DashboardWalletWithdrawAddBankSuccessRoute =
@@ -213,22 +208,34 @@ const DashboardWalletWithdrawAddBankSuccessRoute =
     path: '/success',
     getParentRoute: () => DashboardWalletWithdrawAddBankRoute,
   } as any)
-const DashboardMerchantsOrderOrderRefSuccessRoute =
-  DashboardMerchantsOrderOrderRefSuccessRouteImport.update({
-    id: '/merchants/order/$orderRef/success',
-    path: '/merchants/order/$orderRef/success',
+const DashboardExploreMerchantMerchantIdTailorsRoute =
+  DashboardExploreMerchantMerchantIdTailorsRouteImport.update({
+    id: '/explore/merchant/$merchantId/tailors',
+    path: '/explore/merchant/$merchantId/tailors',
     getParentRoute: () => DashboardRouteRoute,
   } as any)
-const DashboardMerchantsOrderOrderRefPayRoute =
-  DashboardMerchantsOrderOrderRefPayRouteImport.update({
-    id: '/merchants/order/$orderRef/pay',
-    path: '/merchants/order/$orderRef/pay',
+const DashboardExploreMerchantMerchantIdSuccessRoute =
+  DashboardExploreMerchantMerchantIdSuccessRouteImport.update({
+    id: '/explore/merchant/$merchantId/success',
+    path: '/explore/merchant/$merchantId/success',
     getParentRoute: () => DashboardRouteRoute,
   } as any)
-const DashboardMerchantsOrderOrderRefChatRoute =
-  DashboardMerchantsOrderOrderRefChatRouteImport.update({
-    id: '/merchants/order/$orderRef/chat',
-    path: '/merchants/order/$orderRef/chat',
+const DashboardExploreMerchantMerchantIdReviewRoute =
+  DashboardExploreMerchantMerchantIdReviewRouteImport.update({
+    id: '/explore/merchant/$merchantId/review',
+    path: '/explore/merchant/$merchantId/review',
+    getParentRoute: () => DashboardRouteRoute,
+  } as any)
+const DashboardExploreMerchantMerchantIdPayRoute =
+  DashboardExploreMerchantMerchantIdPayRouteImport.update({
+    id: '/explore/merchant/$merchantId/pay',
+    path: '/explore/merchant/$merchantId/pay',
+    getParentRoute: () => DashboardRouteRoute,
+  } as any)
+const DashboardExploreMerchantMerchantIdChatRoute =
+  DashboardExploreMerchantMerchantIdChatRouteImport.update({
+    id: '/explore/merchant/$merchantId/chat',
+    path: '/explore/merchant/$merchantId/chat',
     getParentRoute: () => DashboardRouteRoute,
   } as any)
 
@@ -244,15 +251,12 @@ export interface FileRoutesByFullPath {
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/tailors': typeof DashboardTailorsRoute
   '/dashboard/': typeof DashboardIndexRoute
-  '/dashboard/merchants/$merchantId': typeof DashboardMerchantsMerchantIdRoute
   '/dashboard/wallet/spending': typeof DashboardWalletSpendingRoute
   '/dashboard/wallet/topup': typeof DashboardWalletTopupRouteWithChildren
   '/dashboard/wallet/withdraw': typeof DashboardWalletWithdrawRouteWithChildren
   '/dashboard/explore/': typeof DashboardExploreIndexRoute
   '/dashboard/orders/': typeof DashboardOrdersIndexRoute
   '/dashboard/wallet/': typeof DashboardWalletIndexRoute
-  '/dashboard/merchants/order/delivery-address': typeof DashboardMerchantsOrderDeliveryAddressRoute
-  '/dashboard/merchants/order/select-tailor': typeof DashboardMerchantsOrderSelectTailorRoute
   '/dashboard/orders/$orderId/acknowledge': typeof DashboardOrdersOrderIdAcknowledgeRoute
   '/dashboard/orders/$orderId/fabric': typeof DashboardOrdersOrderIdFabricRoute
   '/dashboard/orders/$orderId/pay': typeof DashboardOrdersOrderIdPayRoute
@@ -262,11 +266,15 @@ export interface FileRoutesByFullPath {
   '/dashboard/wallet/withdraw/add-bank': typeof DashboardWalletWithdrawAddBankRouteWithChildren
   '/dashboard/wallet/withdraw/success': typeof DashboardWalletWithdrawSuccessRoute
   '/dashboard/orders/$orderId/': typeof DashboardOrdersOrderIdIndexRoute
-  '/dashboard/merchants/order/$orderRef/chat': typeof DashboardMerchantsOrderOrderRefChatRoute
-  '/dashboard/merchants/order/$orderRef/pay': typeof DashboardMerchantsOrderOrderRefPayRoute
-  '/dashboard/merchants/order/$orderRef/success': typeof DashboardMerchantsOrderOrderRefSuccessRoute
+  '/dashboard/wallet/topup/': typeof DashboardWalletTopupIndexRoute
+  '/dashboard/wallet/withdraw/': typeof DashboardWalletWithdrawIndexRoute
+  '/dashboard/explore/merchant/$merchantId/chat': typeof DashboardExploreMerchantMerchantIdChatRoute
+  '/dashboard/explore/merchant/$merchantId/pay': typeof DashboardExploreMerchantMerchantIdPayRoute
+  '/dashboard/explore/merchant/$merchantId/review': typeof DashboardExploreMerchantMerchantIdReviewRoute
+  '/dashboard/explore/merchant/$merchantId/success': typeof DashboardExploreMerchantMerchantIdSuccessRoute
+  '/dashboard/explore/merchant/$merchantId/tailors': typeof DashboardExploreMerchantMerchantIdTailorsRoute
   '/dashboard/wallet/withdraw/add-bank/success': typeof DashboardWalletWithdrawAddBankSuccessRoute
-  '/dashboard/merchants/order/$orderRef/': typeof DashboardMerchantsOrderOrderRefIndexRoute
+  '/dashboard/explore/merchant/$merchantId/': typeof DashboardExploreMerchantMerchantIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -279,15 +287,10 @@ export interface FileRoutesByTo {
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/tailors': typeof DashboardTailorsRoute
   '/dashboard': typeof DashboardIndexRoute
-  '/dashboard/merchants/$merchantId': typeof DashboardMerchantsMerchantIdRoute
   '/dashboard/wallet/spending': typeof DashboardWalletSpendingRoute
-  '/dashboard/wallet/topup': typeof DashboardWalletTopupRouteWithChildren
-  '/dashboard/wallet/withdraw': typeof DashboardWalletWithdrawRouteWithChildren
   '/dashboard/explore': typeof DashboardExploreIndexRoute
   '/dashboard/orders': typeof DashboardOrdersIndexRoute
   '/dashboard/wallet': typeof DashboardWalletIndexRoute
-  '/dashboard/merchants/order/delivery-address': typeof DashboardMerchantsOrderDeliveryAddressRoute
-  '/dashboard/merchants/order/select-tailor': typeof DashboardMerchantsOrderSelectTailorRoute
   '/dashboard/orders/$orderId/acknowledge': typeof DashboardOrdersOrderIdAcknowledgeRoute
   '/dashboard/orders/$orderId/fabric': typeof DashboardOrdersOrderIdFabricRoute
   '/dashboard/orders/$orderId/pay': typeof DashboardOrdersOrderIdPayRoute
@@ -297,11 +300,15 @@ export interface FileRoutesByTo {
   '/dashboard/wallet/withdraw/add-bank': typeof DashboardWalletWithdrawAddBankRouteWithChildren
   '/dashboard/wallet/withdraw/success': typeof DashboardWalletWithdrawSuccessRoute
   '/dashboard/orders/$orderId': typeof DashboardOrdersOrderIdIndexRoute
-  '/dashboard/merchants/order/$orderRef/chat': typeof DashboardMerchantsOrderOrderRefChatRoute
-  '/dashboard/merchants/order/$orderRef/pay': typeof DashboardMerchantsOrderOrderRefPayRoute
-  '/dashboard/merchants/order/$orderRef/success': typeof DashboardMerchantsOrderOrderRefSuccessRoute
+  '/dashboard/wallet/topup': typeof DashboardWalletTopupIndexRoute
+  '/dashboard/wallet/withdraw': typeof DashboardWalletWithdrawIndexRoute
+  '/dashboard/explore/merchant/$merchantId/chat': typeof DashboardExploreMerchantMerchantIdChatRoute
+  '/dashboard/explore/merchant/$merchantId/pay': typeof DashboardExploreMerchantMerchantIdPayRoute
+  '/dashboard/explore/merchant/$merchantId/review': typeof DashboardExploreMerchantMerchantIdReviewRoute
+  '/dashboard/explore/merchant/$merchantId/success': typeof DashboardExploreMerchantMerchantIdSuccessRoute
+  '/dashboard/explore/merchant/$merchantId/tailors': typeof DashboardExploreMerchantMerchantIdTailorsRoute
   '/dashboard/wallet/withdraw/add-bank/success': typeof DashboardWalletWithdrawAddBankSuccessRoute
-  '/dashboard/merchants/order/$orderRef': typeof DashboardMerchantsOrderOrderRefIndexRoute
+  '/dashboard/explore/merchant/$merchantId': typeof DashboardExploreMerchantMerchantIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -316,15 +323,12 @@ export interface FileRoutesById {
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/tailors': typeof DashboardTailorsRoute
   '/dashboard/': typeof DashboardIndexRoute
-  '/dashboard/merchants/$merchantId': typeof DashboardMerchantsMerchantIdRoute
   '/dashboard/wallet/spending': typeof DashboardWalletSpendingRoute
   '/dashboard/wallet/topup': typeof DashboardWalletTopupRouteWithChildren
   '/dashboard/wallet/withdraw': typeof DashboardWalletWithdrawRouteWithChildren
   '/dashboard/explore/': typeof DashboardExploreIndexRoute
   '/dashboard/orders/': typeof DashboardOrdersIndexRoute
   '/dashboard/wallet/': typeof DashboardWalletIndexRoute
-  '/dashboard/merchants/order/delivery-address': typeof DashboardMerchantsOrderDeliveryAddressRoute
-  '/dashboard/merchants/order/select-tailor': typeof DashboardMerchantsOrderSelectTailorRoute
   '/dashboard/orders/$orderId/acknowledge': typeof DashboardOrdersOrderIdAcknowledgeRoute
   '/dashboard/orders/$orderId/fabric': typeof DashboardOrdersOrderIdFabricRoute
   '/dashboard/orders/$orderId/pay': typeof DashboardOrdersOrderIdPayRoute
@@ -334,11 +338,15 @@ export interface FileRoutesById {
   '/dashboard/wallet/withdraw/add-bank': typeof DashboardWalletWithdrawAddBankRouteWithChildren
   '/dashboard/wallet/withdraw/success': typeof DashboardWalletWithdrawSuccessRoute
   '/dashboard/orders/$orderId/': typeof DashboardOrdersOrderIdIndexRoute
-  '/dashboard/merchants/order/$orderRef/chat': typeof DashboardMerchantsOrderOrderRefChatRoute
-  '/dashboard/merchants/order/$orderRef/pay': typeof DashboardMerchantsOrderOrderRefPayRoute
-  '/dashboard/merchants/order/$orderRef/success': typeof DashboardMerchantsOrderOrderRefSuccessRoute
+  '/dashboard/wallet/topup/': typeof DashboardWalletTopupIndexRoute
+  '/dashboard/wallet/withdraw/': typeof DashboardWalletWithdrawIndexRoute
+  '/dashboard/explore/merchant/$merchantId/chat': typeof DashboardExploreMerchantMerchantIdChatRoute
+  '/dashboard/explore/merchant/$merchantId/pay': typeof DashboardExploreMerchantMerchantIdPayRoute
+  '/dashboard/explore/merchant/$merchantId/review': typeof DashboardExploreMerchantMerchantIdReviewRoute
+  '/dashboard/explore/merchant/$merchantId/success': typeof DashboardExploreMerchantMerchantIdSuccessRoute
+  '/dashboard/explore/merchant/$merchantId/tailors': typeof DashboardExploreMerchantMerchantIdTailorsRoute
   '/dashboard/wallet/withdraw/add-bank/success': typeof DashboardWalletWithdrawAddBankSuccessRoute
-  '/dashboard/merchants/order/$orderRef/': typeof DashboardMerchantsOrderOrderRefIndexRoute
+  '/dashboard/explore/merchant/$merchantId/': typeof DashboardExploreMerchantMerchantIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -354,15 +362,12 @@ export interface FileRouteTypes {
     | '/dashboard/settings'
     | '/dashboard/tailors'
     | '/dashboard/'
-    | '/dashboard/merchants/$merchantId'
     | '/dashboard/wallet/spending'
     | '/dashboard/wallet/topup'
     | '/dashboard/wallet/withdraw'
     | '/dashboard/explore/'
     | '/dashboard/orders/'
     | '/dashboard/wallet/'
-    | '/dashboard/merchants/order/delivery-address'
-    | '/dashboard/merchants/order/select-tailor'
     | '/dashboard/orders/$orderId/acknowledge'
     | '/dashboard/orders/$orderId/fabric'
     | '/dashboard/orders/$orderId/pay'
@@ -372,11 +377,15 @@ export interface FileRouteTypes {
     | '/dashboard/wallet/withdraw/add-bank'
     | '/dashboard/wallet/withdraw/success'
     | '/dashboard/orders/$orderId/'
-    | '/dashboard/merchants/order/$orderRef/chat'
-    | '/dashboard/merchants/order/$orderRef/pay'
-    | '/dashboard/merchants/order/$orderRef/success'
+    | '/dashboard/wallet/topup/'
+    | '/dashboard/wallet/withdraw/'
+    | '/dashboard/explore/merchant/$merchantId/chat'
+    | '/dashboard/explore/merchant/$merchantId/pay'
+    | '/dashboard/explore/merchant/$merchantId/review'
+    | '/dashboard/explore/merchant/$merchantId/success'
+    | '/dashboard/explore/merchant/$merchantId/tailors'
     | '/dashboard/wallet/withdraw/add-bank/success'
-    | '/dashboard/merchants/order/$orderRef/'
+    | '/dashboard/explore/merchant/$merchantId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -389,15 +398,10 @@ export interface FileRouteTypes {
     | '/dashboard/settings'
     | '/dashboard/tailors'
     | '/dashboard'
-    | '/dashboard/merchants/$merchantId'
     | '/dashboard/wallet/spending'
-    | '/dashboard/wallet/topup'
-    | '/dashboard/wallet/withdraw'
     | '/dashboard/explore'
     | '/dashboard/orders'
     | '/dashboard/wallet'
-    | '/dashboard/merchants/order/delivery-address'
-    | '/dashboard/merchants/order/select-tailor'
     | '/dashboard/orders/$orderId/acknowledge'
     | '/dashboard/orders/$orderId/fabric'
     | '/dashboard/orders/$orderId/pay'
@@ -407,11 +411,15 @@ export interface FileRouteTypes {
     | '/dashboard/wallet/withdraw/add-bank'
     | '/dashboard/wallet/withdraw/success'
     | '/dashboard/orders/$orderId'
-    | '/dashboard/merchants/order/$orderRef/chat'
-    | '/dashboard/merchants/order/$orderRef/pay'
-    | '/dashboard/merchants/order/$orderRef/success'
+    | '/dashboard/wallet/topup'
+    | '/dashboard/wallet/withdraw'
+    | '/dashboard/explore/merchant/$merchantId/chat'
+    | '/dashboard/explore/merchant/$merchantId/pay'
+    | '/dashboard/explore/merchant/$merchantId/review'
+    | '/dashboard/explore/merchant/$merchantId/success'
+    | '/dashboard/explore/merchant/$merchantId/tailors'
     | '/dashboard/wallet/withdraw/add-bank/success'
-    | '/dashboard/merchants/order/$orderRef'
+    | '/dashboard/explore/merchant/$merchantId'
   id:
     | '__root__'
     | '/'
@@ -425,15 +433,12 @@ export interface FileRouteTypes {
     | '/dashboard/settings'
     | '/dashboard/tailors'
     | '/dashboard/'
-    | '/dashboard/merchants/$merchantId'
     | '/dashboard/wallet/spending'
     | '/dashboard/wallet/topup'
     | '/dashboard/wallet/withdraw'
     | '/dashboard/explore/'
     | '/dashboard/orders/'
     | '/dashboard/wallet/'
-    | '/dashboard/merchants/order/delivery-address'
-    | '/dashboard/merchants/order/select-tailor'
     | '/dashboard/orders/$orderId/acknowledge'
     | '/dashboard/orders/$orderId/fabric'
     | '/dashboard/orders/$orderId/pay'
@@ -443,11 +448,15 @@ export interface FileRouteTypes {
     | '/dashboard/wallet/withdraw/add-bank'
     | '/dashboard/wallet/withdraw/success'
     | '/dashboard/orders/$orderId/'
-    | '/dashboard/merchants/order/$orderRef/chat'
-    | '/dashboard/merchants/order/$orderRef/pay'
-    | '/dashboard/merchants/order/$orderRef/success'
+    | '/dashboard/wallet/topup/'
+    | '/dashboard/wallet/withdraw/'
+    | '/dashboard/explore/merchant/$merchantId/chat'
+    | '/dashboard/explore/merchant/$merchantId/pay'
+    | '/dashboard/explore/merchant/$merchantId/review'
+    | '/dashboard/explore/merchant/$merchantId/success'
+    | '/dashboard/explore/merchant/$merchantId/tailors'
     | '/dashboard/wallet/withdraw/add-bank/success'
-    | '/dashboard/merchants/order/$orderRef/'
+    | '/dashboard/explore/merchant/$merchantId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -580,12 +589,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardWalletSpendingRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
-    '/dashboard/merchants/$merchantId': {
-      id: '/dashboard/merchants/$merchantId'
-      path: '/merchants/$merchantId'
-      fullPath: '/dashboard/merchants/$merchantId'
-      preLoaderRoute: typeof DashboardMerchantsMerchantIdRouteImport
-      parentRoute: typeof DashboardRouteRoute
+    '/dashboard/wallet/withdraw/': {
+      id: '/dashboard/wallet/withdraw/'
+      path: '/'
+      fullPath: '/dashboard/wallet/withdraw/'
+      preLoaderRoute: typeof DashboardWalletWithdrawIndexRouteImport
+      parentRoute: typeof DashboardWalletWithdrawRoute
+    }
+    '/dashboard/wallet/topup/': {
+      id: '/dashboard/wallet/topup/'
+      path: '/'
+      fullPath: '/dashboard/wallet/topup/'
+      preLoaderRoute: typeof DashboardWalletTopupIndexRouteImport
+      parentRoute: typeof DashboardWalletTopupRoute
     }
     '/dashboard/orders/$orderId/': {
       id: '/dashboard/orders/$orderId/'
@@ -650,25 +666,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardOrdersOrderIdAcknowledgeRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
-    '/dashboard/merchants/order/select-tailor': {
-      id: '/dashboard/merchants/order/select-tailor'
-      path: '/merchants/order/select-tailor'
-      fullPath: '/dashboard/merchants/order/select-tailor'
-      preLoaderRoute: typeof DashboardMerchantsOrderSelectTailorRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/merchants/order/delivery-address': {
-      id: '/dashboard/merchants/order/delivery-address'
-      path: '/merchants/order/delivery-address'
-      fullPath: '/dashboard/merchants/order/delivery-address'
-      preLoaderRoute: typeof DashboardMerchantsOrderDeliveryAddressRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/merchants/order/$orderRef/': {
-      id: '/dashboard/merchants/order/$orderRef/'
-      path: '/merchants/order/$orderRef'
-      fullPath: '/dashboard/merchants/order/$orderRef/'
-      preLoaderRoute: typeof DashboardMerchantsOrderOrderRefIndexRouteImport
+    '/dashboard/explore/merchant/$merchantId/': {
+      id: '/dashboard/explore/merchant/$merchantId/'
+      path: '/explore/merchant/$merchantId'
+      fullPath: '/dashboard/explore/merchant/$merchantId/'
+      preLoaderRoute: typeof DashboardExploreMerchantMerchantIdIndexRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/wallet/withdraw/add-bank/success': {
@@ -678,25 +680,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardWalletWithdrawAddBankSuccessRouteImport
       parentRoute: typeof DashboardWalletWithdrawAddBankRoute
     }
-    '/dashboard/merchants/order/$orderRef/success': {
-      id: '/dashboard/merchants/order/$orderRef/success'
-      path: '/merchants/order/$orderRef/success'
-      fullPath: '/dashboard/merchants/order/$orderRef/success'
-      preLoaderRoute: typeof DashboardMerchantsOrderOrderRefSuccessRouteImport
+    '/dashboard/explore/merchant/$merchantId/tailors': {
+      id: '/dashboard/explore/merchant/$merchantId/tailors'
+      path: '/explore/merchant/$merchantId/tailors'
+      fullPath: '/dashboard/explore/merchant/$merchantId/tailors'
+      preLoaderRoute: typeof DashboardExploreMerchantMerchantIdTailorsRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
-    '/dashboard/merchants/order/$orderRef/pay': {
-      id: '/dashboard/merchants/order/$orderRef/pay'
-      path: '/merchants/order/$orderRef/pay'
-      fullPath: '/dashboard/merchants/order/$orderRef/pay'
-      preLoaderRoute: typeof DashboardMerchantsOrderOrderRefPayRouteImport
+    '/dashboard/explore/merchant/$merchantId/success': {
+      id: '/dashboard/explore/merchant/$merchantId/success'
+      path: '/explore/merchant/$merchantId/success'
+      fullPath: '/dashboard/explore/merchant/$merchantId/success'
+      preLoaderRoute: typeof DashboardExploreMerchantMerchantIdSuccessRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
-    '/dashboard/merchants/order/$orderRef/chat': {
-      id: '/dashboard/merchants/order/$orderRef/chat'
-      path: '/merchants/order/$orderRef/chat'
-      fullPath: '/dashboard/merchants/order/$orderRef/chat'
-      preLoaderRoute: typeof DashboardMerchantsOrderOrderRefChatRouteImport
+    '/dashboard/explore/merchant/$merchantId/review': {
+      id: '/dashboard/explore/merchant/$merchantId/review'
+      path: '/explore/merchant/$merchantId/review'
+      fullPath: '/dashboard/explore/merchant/$merchantId/review'
+      preLoaderRoute: typeof DashboardExploreMerchantMerchantIdReviewRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/explore/merchant/$merchantId/pay': {
+      id: '/dashboard/explore/merchant/$merchantId/pay'
+      path: '/explore/merchant/$merchantId/pay'
+      fullPath: '/dashboard/explore/merchant/$merchantId/pay'
+      preLoaderRoute: typeof DashboardExploreMerchantMerchantIdPayRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/explore/merchant/$merchantId/chat': {
+      id: '/dashboard/explore/merchant/$merchantId/chat'
+      path: '/explore/merchant/$merchantId/chat'
+      fullPath: '/dashboard/explore/merchant/$merchantId/chat'
+      preLoaderRoute: typeof DashboardExploreMerchantMerchantIdChatRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
   }
@@ -704,10 +720,12 @@ declare module '@tanstack/react-router' {
 
 interface DashboardWalletTopupRouteChildren {
   DashboardWalletTopupSuccessRoute: typeof DashboardWalletTopupSuccessRoute
+  DashboardWalletTopupIndexRoute: typeof DashboardWalletTopupIndexRoute
 }
 
 const DashboardWalletTopupRouteChildren: DashboardWalletTopupRouteChildren = {
   DashboardWalletTopupSuccessRoute: DashboardWalletTopupSuccessRoute,
+  DashboardWalletTopupIndexRoute: DashboardWalletTopupIndexRoute,
 }
 
 const DashboardWalletTopupRouteWithChildren =
@@ -731,6 +749,7 @@ const DashboardWalletWithdrawAddBankRouteWithChildren =
 interface DashboardWalletWithdrawRouteChildren {
   DashboardWalletWithdrawAddBankRoute: typeof DashboardWalletWithdrawAddBankRouteWithChildren
   DashboardWalletWithdrawSuccessRoute: typeof DashboardWalletWithdrawSuccessRoute
+  DashboardWalletWithdrawIndexRoute: typeof DashboardWalletWithdrawIndexRoute
 }
 
 const DashboardWalletWithdrawRouteChildren: DashboardWalletWithdrawRouteChildren =
@@ -738,6 +757,7 @@ const DashboardWalletWithdrawRouteChildren: DashboardWalletWithdrawRouteChildren
     DashboardWalletWithdrawAddBankRoute:
       DashboardWalletWithdrawAddBankRouteWithChildren,
     DashboardWalletWithdrawSuccessRoute: DashboardWalletWithdrawSuccessRoute,
+    DashboardWalletWithdrawIndexRoute: DashboardWalletWithdrawIndexRoute,
   }
 
 const DashboardWalletWithdrawRouteWithChildren =
@@ -751,25 +771,24 @@ interface DashboardRouteRouteChildren {
   DashboardSettingsRoute: typeof DashboardSettingsRoute
   DashboardTailorsRoute: typeof DashboardTailorsRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
-  DashboardMerchantsMerchantIdRoute: typeof DashboardMerchantsMerchantIdRoute
   DashboardWalletSpendingRoute: typeof DashboardWalletSpendingRoute
   DashboardWalletTopupRoute: typeof DashboardWalletTopupRouteWithChildren
   DashboardWalletWithdrawRoute: typeof DashboardWalletWithdrawRouteWithChildren
   DashboardExploreIndexRoute: typeof DashboardExploreIndexRoute
   DashboardOrdersIndexRoute: typeof DashboardOrdersIndexRoute
   DashboardWalletIndexRoute: typeof DashboardWalletIndexRoute
-  DashboardMerchantsOrderDeliveryAddressRoute: typeof DashboardMerchantsOrderDeliveryAddressRoute
-  DashboardMerchantsOrderSelectTailorRoute: typeof DashboardMerchantsOrderSelectTailorRoute
   DashboardOrdersOrderIdAcknowledgeRoute: typeof DashboardOrdersOrderIdAcknowledgeRoute
   DashboardOrdersOrderIdFabricRoute: typeof DashboardOrdersOrderIdFabricRoute
   DashboardOrdersOrderIdPayRoute: typeof DashboardOrdersOrderIdPayRoute
   DashboardOrdersOrderIdRateRoute: typeof DashboardOrdersOrderIdRateRoute
   DashboardWalletTransactionTransactionIdRoute: typeof DashboardWalletTransactionTransactionIdRoute
   DashboardOrdersOrderIdIndexRoute: typeof DashboardOrdersOrderIdIndexRoute
-  DashboardMerchantsOrderOrderRefChatRoute: typeof DashboardMerchantsOrderOrderRefChatRoute
-  DashboardMerchantsOrderOrderRefPayRoute: typeof DashboardMerchantsOrderOrderRefPayRoute
-  DashboardMerchantsOrderOrderRefSuccessRoute: typeof DashboardMerchantsOrderOrderRefSuccessRoute
-  DashboardMerchantsOrderOrderRefIndexRoute: typeof DashboardMerchantsOrderOrderRefIndexRoute
+  DashboardExploreMerchantMerchantIdChatRoute: typeof DashboardExploreMerchantMerchantIdChatRoute
+  DashboardExploreMerchantMerchantIdPayRoute: typeof DashboardExploreMerchantMerchantIdPayRoute
+  DashboardExploreMerchantMerchantIdReviewRoute: typeof DashboardExploreMerchantMerchantIdReviewRoute
+  DashboardExploreMerchantMerchantIdSuccessRoute: typeof DashboardExploreMerchantMerchantIdSuccessRoute
+  DashboardExploreMerchantMerchantIdTailorsRoute: typeof DashboardExploreMerchantMerchantIdTailorsRoute
+  DashboardExploreMerchantMerchantIdIndexRoute: typeof DashboardExploreMerchantMerchantIdIndexRoute
 }
 
 const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
@@ -778,17 +797,12 @@ const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
   DashboardSettingsRoute: DashboardSettingsRoute,
   DashboardTailorsRoute: DashboardTailorsRoute,
   DashboardIndexRoute: DashboardIndexRoute,
-  DashboardMerchantsMerchantIdRoute: DashboardMerchantsMerchantIdRoute,
   DashboardWalletSpendingRoute: DashboardWalletSpendingRoute,
   DashboardWalletTopupRoute: DashboardWalletTopupRouteWithChildren,
   DashboardWalletWithdrawRoute: DashboardWalletWithdrawRouteWithChildren,
   DashboardExploreIndexRoute: DashboardExploreIndexRoute,
   DashboardOrdersIndexRoute: DashboardOrdersIndexRoute,
   DashboardWalletIndexRoute: DashboardWalletIndexRoute,
-  DashboardMerchantsOrderDeliveryAddressRoute:
-    DashboardMerchantsOrderDeliveryAddressRoute,
-  DashboardMerchantsOrderSelectTailorRoute:
-    DashboardMerchantsOrderSelectTailorRoute,
   DashboardOrdersOrderIdAcknowledgeRoute:
     DashboardOrdersOrderIdAcknowledgeRoute,
   DashboardOrdersOrderIdFabricRoute: DashboardOrdersOrderIdFabricRoute,
@@ -797,14 +811,18 @@ const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
   DashboardWalletTransactionTransactionIdRoute:
     DashboardWalletTransactionTransactionIdRoute,
   DashboardOrdersOrderIdIndexRoute: DashboardOrdersOrderIdIndexRoute,
-  DashboardMerchantsOrderOrderRefChatRoute:
-    DashboardMerchantsOrderOrderRefChatRoute,
-  DashboardMerchantsOrderOrderRefPayRoute:
-    DashboardMerchantsOrderOrderRefPayRoute,
-  DashboardMerchantsOrderOrderRefSuccessRoute:
-    DashboardMerchantsOrderOrderRefSuccessRoute,
-  DashboardMerchantsOrderOrderRefIndexRoute:
-    DashboardMerchantsOrderOrderRefIndexRoute,
+  DashboardExploreMerchantMerchantIdChatRoute:
+    DashboardExploreMerchantMerchantIdChatRoute,
+  DashboardExploreMerchantMerchantIdPayRoute:
+    DashboardExploreMerchantMerchantIdPayRoute,
+  DashboardExploreMerchantMerchantIdReviewRoute:
+    DashboardExploreMerchantMerchantIdReviewRoute,
+  DashboardExploreMerchantMerchantIdSuccessRoute:
+    DashboardExploreMerchantMerchantIdSuccessRoute,
+  DashboardExploreMerchantMerchantIdTailorsRoute:
+    DashboardExploreMerchantMerchantIdTailorsRoute,
+  DashboardExploreMerchantMerchantIdIndexRoute:
+    DashboardExploreMerchantMerchantIdIndexRoute,
 }
 
 const DashboardRouteRouteWithChildren = DashboardRouteRoute._addFileChildren(

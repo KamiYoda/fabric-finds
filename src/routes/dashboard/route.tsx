@@ -13,7 +13,6 @@ import {
   ShoppingBag,
   Search,
   Wallet,
-  Users,
   Settings,
   Bell,
   Menu,
@@ -25,13 +24,13 @@ import {
   ChevronsRight,
 } from "lucide-react";
 import { Logo } from "../../components/Logo";
-import { MerchantCartProvider } from "@/features/merchants";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "../../components/ui/tooltip";
+import { UserAvatar } from "@/components/UserAvatar";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard — i-sew" }] }),
@@ -43,7 +42,6 @@ const nav = [
   { to: "/dashboard/orders", label: "Orders", icon: ShoppingBag },
   { to: "/dashboard/explore", label: "Explore", icon: Search },
   { to: "/dashboard/wallet", label: "Wallet", icon: Wallet },
-  // { to: "/dashboard/tailors", label: "Tailors", icon: Users },
   { to: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
 
@@ -53,17 +51,14 @@ function DashboardLayout() {
   const [profileOpen, setProfileOpen] = useState(false);
   const router = useRouter();
   const { user, logout } = useAuth();
+
   const profileName = user
     ? `${user.first_name ?? ""} ${user.last_name ?? ""}`.trim() ||
+      user.name ||
       user.email ||
       "User"
     : "User";
-  const profileEmail = user?.email ? user.email : "";
-  const initials = user
-    ? user.first_name?.[0]?.toUpperCase() ||
-      user.email?.[0]?.toUpperCase() ||
-      "U"
-    : "U";
+  const profileEmail = user?.email ?? "";
 
   const sidebarW = collapsed ? "w-20" : "w-64";
   const mainPad = collapsed ? "lg:pl-20" : "lg:pl-64";
@@ -71,7 +66,7 @@ function DashboardLayout() {
   return (
     <TooltipProvider delayDuration={150}>
       <div className="min-h-screen bg-cream">
-        {/* Sidebar - desktop */}
+        {/* Sidebar — desktop */}
         <aside
           className={`fixed inset-y-0 left-0 z-30 hidden flex-col border-r border-border bg-card transition-[width] duration-200 lg:flex ${sidebarW}`}
         >
@@ -95,13 +90,16 @@ function DashboardLayout() {
               )}
             </button>
           </div>
+
           <nav className="flex-1 space-y-1 p-3">
             {nav.map((n) => (
               <NavItem key={n.to} {...n} collapsed={collapsed} />
             ))}
           </nav>
+
+          {/* Sidebar user badge */}
           {!collapsed && (
-            <div className="m-4 rounded-2xl gradient-primary p-5 text-primary-foreground shadow-glow">
+            <div className="m-4 mt-0 rounded-2xl gradient-primary p-5 text-primary-foreground shadow-glow">
               <div className="text-sm font-semibold">Refer & earn</div>
               <p className="mt-1 text-xs text-primary-foreground/70">
                 Get $20 credit for every friend.
@@ -145,6 +143,20 @@ function DashboardLayout() {
                     <NavItem key={n.to} {...n} />
                   ))}
                 </nav>
+                {/* Mobile drawer user badge */}
+                <div className="absolute bottom-0 left-0 right-0 border-t border-border p-4">
+                  <div className="flex items-center gap-3">
+                    <UserAvatar user={user} size="md" />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-semibold">
+                        {profileName}
+                      </p>
+                      <p className="truncate text-xs text-muted-foreground">
+                        {profileEmail}
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </motion.aside>
             </>
           )}
@@ -169,6 +181,7 @@ function DashboardLayout() {
                 className="h-10 w-full rounded-full border border-border bg-card pl-11 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-ring/30"
               />
             </div>
+
             <div className="flex items-center gap-2">
               <button className="relative rounded-full bg-card p-2.5 hover:bg-muted shadow-soft">
                 <Bell size={18} />
@@ -176,19 +189,20 @@ function DashboardLayout() {
                   2
                 </span>
               </button>
+
+              {/* Profile button — avatar + name */}
               <div className="relative">
                 <button
                   onClick={() => setProfileOpen((o) => !o)}
                   className="flex items-center gap-2 rounded-full bg-card p-1 pr-3 shadow-soft hover:bg-muted"
                 >
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full gradient-primary text-sm font-bold text-primary-foreground">
-                    {initials}
-                  </div>
+                  <UserAvatar user={user} size="md" />
                   <span className="hidden text-sm font-medium sm:block">
                     {profileName}
                   </span>
                   <ChevronDown size={14} className="hidden sm:block" />
                 </button>
+
                 <AnimatePresence>
                   {profileOpen && (
                     <motion.div
@@ -197,12 +211,15 @@ function DashboardLayout() {
                       exit={{ opacity: 0, y: 6 }}
                       className="absolute right-0 mt-2 w-56 overflow-hidden rounded-2xl border border-border bg-card shadow-elegant"
                     >
-                      <div className="p-4 border-b border-border">
-                        <div className="text-sm font-semibold">
-                          {profileName}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          {profileEmail}
+                      <div className="flex items-center gap-3 p-4 border-b border-border">
+                        <UserAvatar user={user} size="lg" />
+                        <div className="min-w-0">
+                          <div className="truncate text-sm font-semibold">
+                            {profileName}
+                          </div>
+                          <div className="truncate text-xs text-muted-foreground">
+                            {profileEmail}
+                          </div>
                         </div>
                       </div>
                       <div className="p-2">
@@ -232,14 +249,11 @@ function DashboardLayout() {
           </header>
 
           <main className="p-4 sm:p-6 lg:p-10">
-            <MerchantCartProvider>
-              <Outlet />
-            </MerchantCartProvider>
+            <Outlet />
           </main>
 
           <Link
             to="/dashboard/create"
-            search={{ tailor_id: undefined, draft_id: undefined }}
             className="fixed bottom-6 right-6 flex h-14 w-14 items-center justify-center rounded-full gradient-primary text-primary-foreground shadow-glow transition-transform hover:scale-105"
           >
             <Plus size={22} />

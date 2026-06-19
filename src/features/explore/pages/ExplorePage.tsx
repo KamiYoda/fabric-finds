@@ -1,244 +1,238 @@
-import { memo, useState, useCallback } from "react";
+import { memo, useState, useCallback, useMemo } from "react";
 import { useRouter } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, ChevronLeft, ChevronRight } from "lucide-react";
-import { TailorCard } from "../components/TailorCard";
+import { Loader2, ChevronLeft, ChevronRight, Search, SlidersHorizontal, Heart } from "lucide-react";
 import { TailorProfileModal } from "../../../components/modals/TailorProfileModal";
 import { getTailors } from "@/lib/api/tailors";
 import type { Tailor } from "@/features/tailors/types";
-import { MyTailorsCard } from "../components/MyTailorsCard";
-import { MerchantsExploreSection } from "@/features/merchants";
+import { Route } from "@/routes/dashboard/explore/index";
+import { TailorListCard } from "../components/TailorListCard";
+import {
+  FabricMerchantCard,
+  FabricMerchantListCard,
+} from "../components/FabricMerchantCard";
+import {
+  MOCK_FABRIC_MERCHANTS,
+  type FabricMerchant,
+} from "../utils/mockFabricMerchants";
 
-type Tab = "browse" | "my" | "merchants";
-
-const REGIONS = ["Lagos", "Abuja", "Port Harcourt", "Kano", "Ibadan"];
+// "browse" search param now backs the Fabric merchants tab; "my" backs Tailors.
+type Tab = "browse" | "my";
 
 export const ExplorePage = memo(() => {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<Tab>("browse");
+  const { tab: initialTab } = Route.useSearch();
+  const [activeTab, setActiveTab] = useState<Tab>(initialTab ?? "my");
+
   const [selectedTailor, setSelectedTailor] = useState<Tailor | undefined>(
     undefined,
   );
   const [modalOpen, setModalOpen] = useState(false);
-
-  // Filters
-  const [region, setRegion] = useState<string>("");
-  const [rating, setRating] = useState<number>(0);
+  const [favouritesOnly, setFavouritesOnly] = useState(false);
+  const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
 
-  const handleTabChange = useCallback((tab: Tab) => {
-    setActiveTab(tab);
-    setPage(1);
-  }, []);
+  const handleTabChange = useCallback(
+    (tab: Tab) => {
+      setActiveTab(tab);
+      setPage(1);
+      setQuery("");
+      router.navigate({
+        to: "/dashboard/explore",
+        search: { tab },
+        replace: true,
+      } as any);
+    },
+    [router],
+  );
 
   const handleTailorClick = useCallback((tailor: Tailor) => {
     setSelectedTailor(tailor);
     setModalOpen(true);
   }, []);
 
-  const handleModalClose = useCallback(() => {
-    setModalOpen(false);
-  }, []);
+  const handleModalClose = useCallback(() => setModalOpen(false), []);
 
-  const handleOrderFromTailor = useCallback(
+  const handleBookTailor = useCallback(
     (tailor: Tailor) => {
       router.navigate({
         to: "/dashboard/create",
-        search: { tailor_id: tailor.id, draft_id: undefined },
+        search: { tailor_id: tailor.id, draft_id: undefined } as any,
       });
     },
     [router],
   );
 
-  const { data: response, isLoading } = useQuery({
-    queryKey: ["tailors", { region, rating, page }],
-    queryFn: async () => {
-      const params: any = { per_page: 12, page };
-      if (region) params.region = region;
-      if (rating > 0) params.rating = rating;
-      const res = await getTailors(params);
-      return res;
-    },
-    enabled: activeTab === "browse",
-    staleTime: 1000 * 60 * 5,
-  });
-
-  const { data: myTailorsResponse, isLoading: myTailorsLoading } = useQuery({
-    queryKey: ["my-tailors"],
-    queryFn: () => getTailors({ per_page: 50 }),
+  // Tailors data — used for the "Tailors" tab
+  const { data: tailorsResponse, isLoading: tailorsLoading } = useQuery({
+    queryKey: ["explore-tailors", { page }],
+    queryFn: () => getTailors({ per_page: 12, page }),
     enabled: activeTab === "my",
     staleTime: 1000 * 60 * 5,
   });
-
-  const tailors = (Array.isArray(response) ? response : []) as Tailor[];
-  const myTailors = (
-    Array.isArray(myTailorsResponse) ? myTailorsResponse : []
+  const tailors = (
+    Array.isArray(tailorsResponse) ? tailorsResponse : []
   ) as Tailor[];
+
+  const filteredTailors = useMemo(() => {
+    let list = tailors;
+    if (favouritesOnly) list = list.filter((t) => t.isSaved);
+    if (query)
+      list = list.filter((t) =>
+        t.name.toLowerCase().includes(query.toLowerCase()),
+      );
+    return list;
+  }, [tailors, favouritesOnly, query]);
+
+  // Fabric merchants data — uses mock data (no API yet)
+  const [savedMerchantIds, setSavedMerchantIds] = useState<Set<string>>(
+    new Set(),
+  );
+  const merchants: FabricMerchant[] = useMemo(
+    () =>
+      MOCK_FABRIC_MERCHANTS.map((m) => ({
+        ...m,
+        isSaved: savedMerchantIds.has(m.id),
+      })),
+    [savedMerchantIds],
+  );
+  const filteredMerchants = useMemo(() => {
+    let list = merchants;
+    if (favouritesOnly) list = list.filter((m) => m.isSaved);
+    if (query)
+      list = list.filter((m) =>
+        m.name.toLowerCase().includes(query.toLowerCase()),
+      );
+    return list;
+  }, [merchants, favouritesOnly, query]);
+
+  const toggleMerchantSaved = useCallback((id: string) => {
+    setSavedMerchantIds((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  }, []);
 
   return (
     <div className="mx-auto w-full">
-      <div className="flex items-center justify-between">
-        <h1 className="font-display text-3xl font-bold">Discover tailors</h1>
-      </div>
+      <h1 className="font-display text-2xl font-bold sm:text-3xl">Explore</h1>
 
-      {/* Tabs - Sticky */}
-      <div className="sticky top-16 z-10 mt-6 flex w-full  bg-muted p-1">
-        {(["browse", "my", "merchants"] as const).map((tab) => {
-          const active = activeTab === tab;
-          const label =
-            tab === "browse"
-              ? "Browse"
-              : tab === "my"
-                ? "My Tailors"
-                : "Fabric Merchants";
+      {/* Tabs */}
+      <div className="mt-4 flex w-full gap-6 border-b border-border text-sm font-medium">
+        {(
+          [
+            { k: "my" as const, label: "Tailors" },
+            { k: "browse" as const, label: "Fabric merchants" },
+          ]
+        ).map(({ k, label }) => {
+          const active = activeTab === k;
           return (
             <button
-              key={tab}
-              onClick={() => handleTabChange(tab)}
-              className={`relative flex-1 rounded-full px-4 py-2.5 text-sm font-medium transition-colors ${
-                active
-                  ? "text-foreground"
-                  : "text-muted-foreground hover:text-foreground"
+              key={k}
+              onClick={() => handleTabChange(k)}
+              className={`relative pb-2.5 transition-colors ${
+                active ? "text-foreground" : "text-muted-foreground"
               }`}
             >
+              {label}
               {active && (
                 <motion.span
-                  layoutId="explore-tab"
-                  className="absolute inset-0 rounded-full bg-card shadow-soft"
-                  transition={{ type: "spring", stiffness: 360, damping: 32 }}
+                  layoutId="explore-tab-underline"
+                  className="absolute -bottom-px left-0 right-0 h-0.5 rounded-full bg-primary"
                 />
               )}
-              <span className="relative z-10">{label}</span>
             </button>
           );
         })}
       </div>
 
-      {activeTab === "merchants" && <MerchantsExploreSection />}
-
-
-      {/* Filters - Sticky Browse tab only */}
-      {activeTab === "browse" && (
-        <div className="sticky top-28 z-10 mt-4 flex flex-wrap gap-3 bg-cream py-2">
-          <select
-            value={region}
-            onChange={(e) => {
-              setRegion(e.target.value);
-              setPage(1);
-            }}
-            className="rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium"
-          >
-            <option value="">All Regions</option>
-            {REGIONS.map((r) => (
-              <option key={r} value={r}>
-                {r}
-              </option>
-            ))}
-          </select>
-
-          <select
-            value={rating}
-            onChange={(e) => {
-              setRating(Number(e.target.value));
-              setPage(1);
-            }}
-            className="rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium"
-          >
-            <option value="0">All Ratings</option>
-            <option value="3">3+ stars</option>
-            <option value="4">4+ stars</option>
-            <option value="4.5">4.5+ stars</option>
-          </select>
-
-          {(region || rating > 0) && (
-            <button
-              onClick={() => {
-                setRegion("");
-                setRating(0);
-                setPage(1);
-              }}
-              className="rounded-lg bg-muted px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary"
-            >
-              Clear filters
-            </button>
-          )}
+      {/* Search + filter + favourites toggle */}
+      <div className="mt-4 flex items-center gap-2">
+        <div className="relative flex-1">
+          <Search
+            size={14}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+          />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search"
+            className="h-10 w-full rounded-full border border-border bg-card pl-9 pr-3 text-sm outline-none focus:border-primary"
+          />
         </div>
+        <button
+          aria-label="Filters"
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-muted-foreground hover:text-foreground"
+        >
+          <SlidersHorizontal size={15} />
+        </button>
+        <button
+          aria-label="Favourites"
+          onClick={() => setFavouritesOnly((v) => !v)}
+          className={`flex h-10 w-10 items-center justify-center rounded-full transition-colors ${
+            favouritesOnly
+              ? "bg-primary text-primary-foreground"
+              : "border border-border bg-card text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <Heart
+            size={15}
+            className={favouritesOnly ? "fill-current" : undefined}
+          />
+        </button>
+      </div>
+
+      {/* Favourites heading on Fabric merchants tab when filtering */}
+      {activeTab === "browse" && favouritesOnly && (
+        <h2 className="mt-4 text-sm font-semibold">Favourites Merchants</h2>
       )}
 
       {/* Content */}
-      <div className="mt-6">
-        {activeTab === "browse" ? (
-          isLoading ? (
+      <div className="mt-4">
+        {activeTab === "my" ? (
+          tailorsLoading ? (
             <div className="flex items-center justify-center gap-2 py-16 text-sm text-muted-foreground">
               <Loader2 size={16} className="animate-spin" /> Loading tailors…
             </div>
           ) : (
-            <>
-              <AnimatePresence mode="popLayout">
-                {tailors.length === 0 ? (
-                  <motion.div
-                    key="empty"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="rounded-2xl border border-dashed border-border bg-card/50 p-12 text-center text-sm text-muted-foreground col-span-full"
-                  >
-                    No tailors found matching your filters.
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    layout
-                    className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4"
-                  >
-                    {tailors.map((tailor, i) => (
-                      <motion.div
-                        key={tailor.id}
-                        layout
-                        initial={{ opacity: 0, y: 8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -8 }}
-                        transition={{ delay: i * 0.04 }}
-                      >
-                        <TailorCard
-                          tailor={tailor}
-                          onClick={handleTailorClick}
-                        />
-                      </motion.div>
-                    ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {/* Pagination */}
-              {tailors.length > 0 && (
-                <div className="mt-6 flex items-center justify-center gap-2">
-                  <button
-                    onClick={() => setPage(Math.max(1, page - 1))}
-                    disabled={page === 1}
-                    className="rounded-lg border border-border p-2 hover:bg-muted disabled:opacity-50"
-                  >
-                    <ChevronLeft size={16} />
-                  </button>
-                  <span className="text-sm font-medium">Page {page}</span>
-                  <button
-                    onClick={() => setPage(page + 1)}
-                    disabled={tailors.length < 12}
-                    className="rounded-lg border border-border p-2 hover:bg-muted disabled:opacity-50"
-                  >
-                    <ChevronRight size={16} />
-                  </button>
-                </div>
+            <AnimatePresence mode="popLayout">
+              {filteredTailors.length === 0 ? (
+                <motion.div
+                  key="empty"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="rounded-2xl border border-dashed border-border bg-card/50 p-12 text-center text-sm text-muted-foreground"
+                >
+                  No tailors found.
+                </motion.div>
+              ) : (
+                <motion.div layout className="grid gap-3">
+                  {filteredTailors.map((tailor, i) => (
+                    <motion.div
+                      key={tailor.id}
+                      layout
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8 }}
+                      transition={{ delay: i * 0.04 }}
+                    >
+                      <TailorListCard
+                        tailor={tailor}
+                        onViewProfile={handleTailorClick}
+                        onBook={handleBookTailor}
+                      />
+                    </motion.div>
+                  ))}
+                </motion.div>
               )}
-            </>
+            </AnimatePresence>
           )
-        ) : myTailorsLoading ? (
-          <div className="flex items-center justify-center gap-2 py-16 text-sm text-muted-foreground">
-            <Loader2 size={16} className="animate-spin" /> Loading tailors…
-          </div>
-        ) : (
+        ) : favouritesOnly ? (
           <AnimatePresence mode="popLayout">
-            {myTailors.length === 0 ? (
+            {filteredMerchants.length === 0 ? (
               <motion.div
                 key="empty"
                 initial={{ opacity: 0 }}
@@ -246,41 +240,98 @@ export const ExplorePage = memo(() => {
                 exit={{ opacity: 0 }}
                 className="rounded-2xl border border-dashed border-border bg-card/50 p-12 text-center text-sm text-muted-foreground"
               >
-                No saved tailors yet. Browse to find and save your favorite
-                tailors.
+                No favourite merchants yet.
               </motion.div>
             ) : (
-              <motion.div
-                layout
-                className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1"
-              >
-                {myTailors.map((tailor, i) => (
+              <motion.div layout className="grid gap-3">
+                {filteredMerchants.map((m, i) => (
                   <motion.div
-                    key={tailor.id}
+                    key={m.id}
                     layout
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -8 }}
                     transition={{ delay: i * 0.04 }}
                   >
-                    <MyTailorsCard
-                      tailor={tailor}
-                      onClick={handleTailorClick}
+                    <FabricMerchantListCard
+                      merchant={m}
+                      onRemove={toggleMerchantSaved}
                     />
                   </motion.div>
                 ))}
               </motion.div>
             )}
           </AnimatePresence>
+        ) : (
+          <>
+            <AnimatePresence mode="popLayout">
+              {filteredMerchants.length === 0 ? (
+                <motion.div
+                  key="empty"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="rounded-2xl border border-dashed border-border bg-card/50 p-12 text-center text-sm text-muted-foreground"
+                >
+                  No fabric merchants found.
+                </motion.div>
+              ) : (
+                <motion.div
+                  layout
+                  className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
+                >
+                  {filteredMerchants.map((m, i) => (
+                    <motion.div
+                      key={m.id}
+                      layout
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8 }}
+                      transition={{ delay: i * 0.03 }}
+                    >
+                      <FabricMerchantCard
+                        merchant={m}
+                        onClick={() =>
+                          router.navigate({
+                            to: "/dashboard/explore/merchant/$merchantId" as any,
+                            params: { merchantId: m.id } as any,
+                          })
+                        }
+                      />
+                    </motion.div>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </>
+        )}
+
+        {activeTab === "my" && filteredTailors.length > 0 && (
+          <div className="mt-6 flex items-center justify-center gap-2">
+            <button
+              onClick={() => setPage(Math.max(1, page - 1))}
+              disabled={page === 1}
+              className="rounded-lg border border-border p-2 hover:bg-muted disabled:opacity-50"
+            >
+              <ChevronLeft size={16} />
+            </button>
+            <span className="text-sm font-medium">Page {page}</span>
+            <button
+              onClick={() => setPage(page + 1)}
+              disabled={tailors.length < 12}
+              className="rounded-lg border border-border p-2 hover:bg-muted disabled:opacity-50"
+            >
+              <ChevronRight size={16} />
+            </button>
+          </div>
         )}
       </div>
 
-      {/* Tailor Profile Modal */}
       <TailorProfileModal
         tailor={selectedTailor}
         isOpen={modalOpen}
         onClose={handleModalClose}
-        onOrder={handleOrderFromTailor}
+        onOrder={handleBookTailor}
       />
     </div>
   );

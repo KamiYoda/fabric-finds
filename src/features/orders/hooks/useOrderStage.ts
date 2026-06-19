@@ -7,7 +7,7 @@ const ratedStore = new Set<string>()
 
 export const useOrderStage = (orderId: string) => {
   const [stage, setStageState] = useState<Stage>(() => 
-    stageStore.get(orderId) || 'review'
+    stageStore.get(orderId) || 'acknowledge'
   )
   const [isRated, setIsRated] = useState(() => 
     ratedStore.has(orderId)

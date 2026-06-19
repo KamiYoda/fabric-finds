@@ -30,10 +30,8 @@ interface PortfolioItem {
 interface ReviewItem {
   reviewer_name?: string;
   reviewer_profile_photo?: string;
-  reviewer?: { first_name?: string; last_name?: string };
   rating: number;
   comment: string;
-  body?: string;
   created_at?: string;
 }
 
@@ -41,7 +39,7 @@ interface TailorProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
   tailor: Tailor | undefined;
-  onOrder?: (tailor: Tailor) => void;
+  onOrder: (tailor: Tailor) => void;
 }
 
 export function TailorProfileModal({
@@ -343,9 +341,8 @@ export function TailorProfileModal({
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between gap-2">
                               <div className="font-semibold text-sm">
-                                {r.reviewer_name ||
-                                  `${r.reviewer?.first_name ?? ""} ${r.reviewer?.last_name ?? ""}`.trim() ||
-                                  "Anonymous"}
+                                {r.reviewer?.first_name}{" "}
+                                {r.reviewer?.last_name || "Anonymous"}
                               </div>
                               <span className="text-xs text-muted-foreground">
                                 {r.created_at
@@ -367,7 +364,7 @@ export function TailorProfileModal({
                               ))}
                             </div>
                             <p className="text-sm text-muted-foreground mt-2">
-                              {r.body ?? r.comment}
+                              {r.body}
                             </p>
                           </div>
                         </div>

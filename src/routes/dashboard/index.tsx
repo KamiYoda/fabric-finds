@@ -36,6 +36,41 @@ function Card({ children, className = "", delay = 0 }: any) {
   );
 }
 
+const quickActions = [
+  {
+    icon: Shirt,
+    title: "Order an outfit",
+    desc: "Pick a style, fabric and tailor.",
+    tone: "primary",
+    to: "/dashboard/create" as const,
+    search: undefined,
+  },
+  {
+    icon: Scissors,
+    title: "Add personal tailor",
+    desc: "Save your trusted tailors.",
+    tone: "accent",
+    to: "/dashboard/explore/" as const,
+    search: { tab: "my" as const },
+  },
+  {
+    icon: ShieldCheck,
+    title: "Verified tailors",
+    desc: "Browse master craftsmen.",
+    tone: "success",
+    to: "/dashboard/explore/" as const,
+    search: { tab: "browse" as const },
+  },
+  {
+    icon: MapPin,
+    title: "Fabric Marketplace",
+    desc: "Where quality materials awaits you.",
+    tone: "primary",
+    to: "/dashboard/explore/" as const,
+    search: { tab: "browse" as const },
+  },
+] as const;
+
 function Overview() {
   const { user, isNewUser } = useAuth();
 
@@ -172,75 +207,52 @@ function Overview() {
               Order custom outfits from verified tailors and track every stitch.
             </p>
           </div>
-          <div className="flex gap-2 sm:gap-3">
-            <Link
-              to="/dashboard/create"
-              search={{ tailor_id: undefined, draft_id: undefined }}
-            >
+          {/* <div className="flex gap-2 sm:gap-3">
+            <Link to="/dashboard/create">
               <Button variant="accent" size="sm" className="sm:size-lg">
                 New order <Plus size={14} />
               </Button>
             </Link>
-            <Link to="/dashboard/explore">
+            <Link to="/dashboard/explore/" search={{ tab: "browse" }}>
               <Button variant="glass" size="sm" className="sm:size-lg">
                 Find a tailor
               </Button>
             </Link>
-          </div>
+          </div> */}
         </div>
       </motion.div>
 
       {/* Quick actions */}
       <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
-        {[
-          {
-            icon: Shirt,
-            title: "Order an outfit",
-            desc: "Pick a style, fabric and tailor.",
-            tone: "primary",
-          },
-          {
-            icon: Scissors,
-            title: "Add personal tailor",
-            desc: "Save your trusted tailors.",
-            tone: "accent",
-          },
-          {
-            icon: ShieldCheck,
-            title: "Verified tailors",
-            desc: "Browse master craftsmen.",
-            tone: "success",
-          },
-          {
-            icon: MapPin,
-            title: "Order tracker",
-            desc: "Real-time updates.",
-            tone: "primary",
-          },
-        ].map((q, i) => (
-          <Card
+        {quickActions.map((q, i) => (
+          <Link
             key={q.title}
-            delay={i * 0.05}
-            className="cursor-pointer hover:-translate-y-1 transition-all hover:shadow-elegant"
+            to={q.to}
+            {...(q.search ? { search: q.search } : {})}
           >
-            <div
-              className={`mb-3 sm:mb-4 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl ${
-                q.tone === "accent"
-                  ? "gradient-accent text-primary"
-                  : q.tone === "success"
-                    ? "bg-success text-white"
-                    : "gradient-primary text-primary-foreground"
-              }`}
+            <Card
+              delay={i * 0.05}
+              className="h-full cursor-pointer hover:-translate-y-1 transition-all hover:shadow-elegant"
             >
-              <q.icon size={18} />
-            </div>
-            <h3 className="font-display text-sm sm:text-base font-semibold leading-tight">
-              {q.title}
-            </h3>
-            <p className="mt-1 text-[11px] sm:text-xs text-muted-foreground">
-              {q.desc}
-            </p>
-          </Card>
+              <div
+                className={`mb-3 sm:mb-4 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl ${
+                  q.tone === "accent"
+                    ? "gradient-accent text-primary"
+                    : q.tone === "success"
+                      ? "bg-success text-white"
+                      : "gradient-primary text-primary-foreground"
+                }`}
+              >
+                <q.icon size={18} />
+              </div>
+              <h3 className="font-display text-sm sm:text-base font-semibold leading-tight">
+                {q.title}
+              </h3>
+              <p className="mt-1 text-[11px] sm:text-xs text-muted-foreground">
+                {q.desc}
+              </p>
+            </Card>
+          </Link>
         ))}
       </div>
 
@@ -389,7 +401,7 @@ function Overview() {
                   </div>
                   <div className="text-[11px] sm:text-xs text-muted-foreground flex items-center gap-1.5">
                     <Clock size={11} />{" "}
-                    {(o.eta ?? o.estimated_timeline_days)
+                    {o.estimated_timeline_days
                       ? `ETA ${o.estimated_timeline_days} days`
                       : ""}{" "}
                     · {o.tailor_name ?? o.tailor?.name ?? ""}

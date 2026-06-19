@@ -1,6 +1,16 @@
 import { useParams, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowUpRight, Clock, CheckCircle2, ShieldCheck } from "lucide-react";
+import {
+  ArrowUpRight,
+  Clock,
+  CheckCircle2,
+  ShieldCheck,
+  MessageSquare,
+  ExternalLink,
+  Lock,
+  Wallet,
+  User,
+} from "lucide-react";
 import {
   getWalletTransaction,
   formatNaira,
@@ -27,8 +37,25 @@ const DUMMY_TX: WalletTransactionDetail = {
   released: 0,
 };
 
+function statusConfig(status: string, type: string, orderStatus?: string | null) {
+  if (type === "credit") {
+    return { label: "Refunded", className: "bg-success/15 text-success", Icon: CheckCircle2 };
+  }
+  if (status === "pending") {
+    return { label: "Escrow · Held", className: "bg-accent/20 text-primary", Icon: Lock };
+  }
+  if (status === "successful") {
+    return { label: "Released", className: "bg-success/15 text-success", Icon: CheckCircle2 };
+  }
+  return { label: status, className: "bg-muted text-muted-foreground", Icon: Clock };
+}
+
+function orderStatusLabel(s?: string | null) {
+  if (!s) return "—";
+  return s.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 export default function TransactionDetailPage() {
-  // strict: false — reads from whatever active route contains $transactionId
   const { transactionId } = useParams({ strict: false }) as {
     transactionId?: string;
   };
@@ -37,7 +64,6 @@ export default function TransactionDetailPage() {
     queryKey: ["wallet-transaction", transactionId],
     queryFn: () => getWalletTransaction(transactionId!),
     enabled: !!transactionId,
-    // On error, fall back silently — dummy data handles empty state
   });
 
   const data = tx ?? (!isLoading ? DUMMY_TX : undefined);
@@ -56,50 +82,45 @@ export default function TransactionDetailPage() {
     );
   }
 
-  const statusLabel = data.order_status
-    ? data.order_status.charAt(0).toUpperCase() +
-      data.order_status.replace("_", " ").slice(1)
-    : "—";
+  const sc = statusConfig(data.status, data.type, data.order_status);
+  const StatusIcon = sc.Icon;
 
   return (
     <WalletShell title="Transaction" eyebrow="Wallet activity">
+      {/* Amount hero */}
       <WalletCard delay={0.05} className="text-center">
+        <div
+          className={`mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl ${sc.className}`}
+        >
+          <StatusIcon size={22} />
+        </div>
         <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           Amount
         </p>
         <p className="mt-1 font-display text-4xl font-bold tabular-nums sm:text-5xl">
           {formatNaira(data.amount)}
         </p>
-        <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-accent/20 px-3 py-1 text-xs font-semibold text-primary">
-          <Clock size={12} /> {statusLabel} order
+        <span
+          className={`mt-3 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${sc.className}`}
+        >
+          <StatusIcon size={12} /> {sc.label}
         </span>
 
+        {/* Amount breakdown */}
         <div className="mt-6 grid grid-cols-3 gap-2">
-          <Pill
-            label="Spending"
-            value={data.spending}
-            tone="primary"
-            Icon={ArrowUpRight}
-          />
-          <Pill
-            label="Pending"
-            value={data.pending}
-            tone="accent"
-            Icon={Clock}
-          />
-          <Pill
-            label="Released"
-            value={data.released}
-            tone="success"
-            Icon={CheckCircle2}
-          />
+          <Pill label="Spending" value={data.spending} tone="primary" Icon={ArrowUpRight} />
+          <Pill label="Escrow" value={data.pending} tone="accent" Icon={Lock} />
+          <Pill label="Released" value={data.released} tone="success" Icon={CheckCircle2} />
         </div>
       </WalletCard>
 
+      {/* Order info */}
       <WalletCard delay={0.1}>
-        <h2 className="font-display text-lg font-semibold">Details</h2>
+        <h2 className="font-display text-lg font-semibold">Order information</h2>
         <div className="mt-3 divide-y divide-border">
           <Row label="Order name" value={data.order_name ?? "—"} />
+          {data.order_ref && <Row label="Order ref" value={data.order_ref} mono />}
+          <Row label="Order status" value={orderStatusLabel(data.order_status)} />
           <Row label="Transaction ID" value={data.transaction_id} mono />
           <Row
             label="Date"
@@ -111,38 +132,74 @@ export default function TransactionDetailPage() {
               minute: "2-digit",
             })}
           />
-          <Row label="Tailor" value={data.tailor_name ?? "—"} />
-          <div className="flex items-center justify-between py-3.5">
-            <span className="text-sm text-muted-foreground">Job details</span>
-            {data.order_id ? (
-              <Link
-                to="/dashboard/orders/$orderId"
-                params={{ orderId: data.order_id }}
-                className="text-sm font-medium text-primary hover:underline"
-              >
-                Go to order →
-              </Link>
-            ) : (
-              <span className="text-sm text-muted-foreground">—</span>
-            )}
-          </div>
         </div>
+
+        {/* Navigation actions */}
+        {data.order_id && (
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Link
+              to="/dashboard/orders/$orderId"
+              params={{ orderId: data.order_id }}
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-primary/10 px-4 py-2.5 text-xs font-semibold text-primary transition-colors hover:bg-primary/20"
+            >
+              <ExternalLink size={13} /> View order
+            </Link>
+            <Link
+              to="/dashboard/orders/$orderId"
+              params={{ orderId: data.order_id }}
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-muted px-4 py-2.5 text-xs font-semibold text-foreground transition-colors hover:bg-secondary"
+            >
+              <MessageSquare size={13} /> Chat
+            </Link>
+          </div>
+        )}
       </WalletCard>
 
-      <WalletCard delay={0.15} className="bg-muted/40">
-        <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-            <ShieldCheck size={18} />
+      {/* Tailor info */}
+      {data.tailor_name && (
+        <WalletCard delay={0.15}>
+          <h2 className="font-display text-lg font-semibold">Tailor</h2>
+          <div className="mt-3 flex items-center gap-3">
+            {data.tailor_avatar ? (
+              <img
+                src={data.tailor_avatar}
+                alt={data.tailor_name}
+                className="h-12 w-12 rounded-full object-cover"
+              />
+            ) : (
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
+                <User size={20} />
+              </div>
+            )}
+            <div>
+              <p className="font-semibold">{data.tailor_name}</p>
+              {data.tailor_id && (
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  ID: {data.tailor_id}
+                </p>
+              )}
+            </div>
           </div>
-          <div>
-            <p className="font-semibold">Held in escrow</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              We've securely held this payment. Funds release to the tailor once
-              you confirm the job has been completed satisfactorily.
-            </p>
+        </WalletCard>
+      )}
+
+      {/* Escrow notice — only for pending */}
+      {data.status === "pending" && data.type !== "credit" && (
+        <WalletCard delay={0.2} className="bg-muted/40">
+          <div className="flex items-start gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <ShieldCheck size={18} />
+            </div>
+            <div>
+              <p className="font-semibold">Held in escrow</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Funds are securely held and will release to the tailor once you
+                confirm the job has been completed satisfactorily.
+              </p>
+            </div>
           </div>
-        </div>
-      </WalletCard>
+        </WalletCard>
+      )}
     </WalletShell>
   );
 }

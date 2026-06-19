@@ -1,13 +1,17 @@
-import { memo, useState, useCallback } from "react";
+import { memo, useState, useCallback, useRef } from "react";
 import { Link } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, Clock, Edit3, Loader2, Trash2 } from "lucide-react";
-import { useRef } from "react";
+import {
+  ChevronRight,
+  Clock,
+  Loader2,
+  XCircle,
+} from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { getOrders, deleteOrder } from "@/lib/api/orders";
 import { Modal } from "@/components/modals/Modal";
+import { Button } from "@/components/ui/button";
 import {
   type ApiOrder,
   type OrderTab,
@@ -22,106 +26,198 @@ import { DraftOrderCard } from "../components/DraftOrderCard";
 const TABS: OrderTab[] = ["Pending", "Ongoing", "Completed", "Drafts"];
 
 // ─── OrderCard ─────────────────────────────────────────────────────────────
-const OrderCard = memo(({ order }: { order: ApiOrder }) => {
-  const tab = statusToTab(order.status);
-  const isOngoing = tab === "Ongoing";
-  const isCompleted = tab === "Completed";
-  const progress = orderProgress(order.status);
-  const progressLabel = orderProgressLabel(order.status);
-  const name = tailorDisplayName(order.tailor);
-  const avatar = tailorAvatar(order.tailor);
+const OrderCard = memo(
+  ({
+    order,
+    onCancelled,
+  }: {
+    order: ApiOrder;
+    onCancelled?: (id: string) => void;
+  }) => {
+    const tab = statusToTab(order.status);
+    const isOngoing = tab === "Ongoing";
+    const isCompleted = tab === "Completed";
+    const progress = orderProgress(order.status);
+    const progressLabel = orderProgressLabel(order.status);
+    const name = tailorDisplayName(order.tailor);
+    const avatar = tailorAvatar(order.tailor);
 
-  const eta =
-    order.estimated_timeline_days != null
-      ? `${order.estimated_timeline_days} days`
-      : "— —";
+    const eta =
+      order.estimated_timeline_days != null
+        ? `${order.estimated_timeline_days} days`
+        : "— —";
 
-  return (
-    <Link
-      to="/dashboard/orders/$orderId"
-      params={{ orderId: order.id }}
-      className="group block rounded-2xl border border-border bg-card p-4 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-elegant"
-    >
-      <div className="flex items-center justify-between">
-        <div className="font-display text-base font-semibold">
-          {order.title}
-        </div>
-        <ChevronRight
-          size={16}
-          className="text-muted-foreground transition-transform group-hover:translate-x-0.5"
-        />
-      </div>
+    // Cancellable iff: no accepted tailor AND status is draft/sent (not
+    // completed/cancelled/closed)
+    const cancellable =
+      !order.tailor &&
+      order.tailor_id == null &&
+      (order.status === "draft" || order.status === "sent");
 
-      <div className="mt-2 flex items-center gap-2.5">
-        {avatar ? (
-          <img
-            src={avatar}
-            alt={name}
-            className="h-8 w-8 rounded-full object-cover"
-          />
-        ) : (
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-accent/40 to-primary/30 text-[10px] font-bold text-primary-foreground">
-            {name.slice(0, 2).toUpperCase()}
-          </div>
-        )}
-        <div className="min-w-0 flex-1">
-          <div className="text-sm text-muted-foreground">{name}</div>
-          <div className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground/80">
-            <Clock size={11} /> ETA — {eta}
-          </div>
-        </div>
+    const [confirmOpen, setConfirmOpen] = useState(false);
+    const [isCancelling, setIsCancelling] = useState(false);
+    const cancelledRef = useRef(false);
 
-        {isOngoing && progressLabel && (
-          <span
-            className={`text-xs font-medium ${
-              progress >= 95
-                ? "text-success"
-                : progressLabel === "Started work"
-                  ? "text-success"
-                  : "text-amber-500"
-            }`}
+    const handleCancel = async () => {
+      if (cancelledRef.current) return;
+      cancelledRef.current = true;
+      setIsCancelling(true);
+      try {
+        await deleteOrder(String(order.id));
+        toast.success("Order cancelled");
+        onCancelled?.(String(order.id));
+      } catch {
+        toast.error("Failed to cancel order. Please try again.");
+        cancelledRef.current = false;
+      } finally {
+        setIsCancelling(false);
+        setConfirmOpen(false);
+      }
+    };
+
+    return (
+      <>
+        <div className="group relative rounded-2xl border border-border bg-card p-4 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-elegant">
+          <Link
+            to="/dashboard/orders/$orderId"
+            params={{ orderId: order.id }}
+            className="block"
           >
-            {progress >= 95 ? `${progress}%` : progressLabel}
-          </span>
-        )}
-        {tab === "Pending" && (
-          <span className="rounded-full bg-accent/30 px-2.5 py-1 text-[11px] font-medium text-primary">
-            Pending
-          </span>
-        )}
-        {isCompleted && (
-          <span className="rounded-full bg-success/15 px-2.5 py-1 text-[11px] font-medium text-success">
-            Completed
-          </span>
-        )}
-      </div>
+            <div className="flex items-center justify-between">
+              <div className="font-display text-base font-semibold">
+                {order.title}
+              </div>
+              <ChevronRight
+                size={16}
+                className="text-muted-foreground transition-transform group-hover:translate-x-0.5"
+              />
+            </div>
 
-      {isOngoing && (
-        <div className="relative mt-3 h-1.5 overflow-hidden rounded-full bg-muted">
-          <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: `${progress}%` }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-            className={`h-full rounded-full ${
-              progress >= 95
-                ? "bg-success"
-                : progress >= 25
-                  ? "bg-success"
-                  : "bg-amber-500"
-            }`}
-          />
-          {[25, 50, 75].map((p) => (
-            <span
-              key={p}
-              className="absolute top-1/2 h-1 w-1 -translate-y-1/2 rounded-full bg-card"
-              style={{ left: `${p}%` }}
-            />
-          ))}
+            <div className="mt-2 flex items-center gap-2.5">
+              {avatar ? (
+                <img
+                  src={avatar}
+                  alt={name}
+                  className="h-8 w-8 rounded-full object-cover"
+                />
+              ) : (
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-accent/40 to-primary/30 text-[10px] font-bold text-primary-foreground">
+                  {name.slice(0, 2).toUpperCase()}
+                </div>
+              )}
+              <div className="min-w-0 flex-1">
+                <div className="text-sm text-muted-foreground">{name}</div>
+                <div className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground/80">
+                  <Clock size={11} /> ETA — {eta}
+                </div>
+              </div>
+
+              {isOngoing && progressLabel && (
+                <span
+                  className={`text-xs font-medium ${
+                    progress >= 95
+                      ? "text-success"
+                      : progressLabel === "Started work"
+                        ? "text-success"
+                        : "text-amber-500"
+                  }`}
+                >
+                  {progress >= 95 ? `${progress}%` : progressLabel}
+                </span>
+              )}
+              {tab === "Pending" && (
+                <span className="rounded-full bg-accent/30 px-2.5 py-1 text-[11px] font-medium text-primary">
+                  Pending
+                </span>
+              )}
+              {isCompleted && (
+                <span className="rounded-full bg-success/15 px-2.5 py-1 text-[11px] font-medium text-success">
+                  Completed
+                </span>
+              )}
+            </div>
+
+            {isOngoing && (
+              <div className="relative mt-3 h-1.5 overflow-hidden rounded-full bg-muted">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${progress}%` }}
+                  transition={{ duration: 0.6, ease: "easeOut" }}
+                  className={`h-full rounded-full ${
+                    progress >= 95
+                      ? "bg-success"
+                      : progress >= 25
+                        ? "bg-success"
+                        : "bg-amber-500"
+                  }`}
+                />
+                {[25, 50, 75].map((p) => (
+                  <span
+                    key={p}
+                    className="absolute top-1/2 h-1 w-1 -translate-y-1/2 rounded-full bg-card"
+                    style={{ left: `${p}%` }}
+                  />
+                ))}
+              </div>
+            )}
+          </Link>
+
+          {cancellable && (
+            <div className="mt-3 flex justify-end border-t border-border pt-3">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setConfirmOpen(true);
+                }}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-destructive/30 bg-destructive/5 px-3 py-1.5 text-xs font-medium text-destructive transition-colors hover:bg-destructive/10"
+              >
+                <XCircle size={12} /> Cancel order
+              </button>
+            </div>
+          )}
         </div>
-      )}
-    </Link>
-  );
-});
+
+        <Modal
+          open={confirmOpen}
+          onClose={() => !isCancelling && setConfirmOpen(false)}
+        >
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Cancel this order?</h3>
+            <p className="text-sm text-muted-foreground">
+              "{order.title}" hasn't been picked up by a tailor yet. Cancelling
+              will remove it permanently.
+            </p>
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="secondary"
+                onClick={() => setConfirmOpen(false)}
+                disabled={isCancelling}
+              >
+                Keep order
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleCancel}
+                disabled={isCancelling}
+              >
+                {isCancelling ? (
+                  <>
+                    <Loader2 className="animate-spin" size={14} />
+                    Cancelling…
+                  </>
+                ) : (
+                  "Cancel order"
+                )}
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      </>
+    );
+  },
+);
 
 OrderCard.displayName = "OrderCard";
 
@@ -266,7 +362,7 @@ export const OrdersListPage = memo(() => {
                   exit={{ opacity: 0, y: -8 }}
                   transition={{ delay: i * 0.04 }}
                 >
-                  <OrderCard order={o} />
+                  <OrderCard order={o} onCancelled={handleDraftDeleted} />
                 </motion.div>
               ))
             )}
