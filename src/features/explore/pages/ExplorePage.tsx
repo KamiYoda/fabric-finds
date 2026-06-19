@@ -84,8 +84,14 @@ export const ExplorePage = memo(() => {
 
       {/* Tabs - Sticky */}
       <div className="sticky top-16 z-10 mt-6 flex w-full  bg-muted p-1">
-        {(["browse", "my"] as const).map((tab) => {
+        {(["browse", "my", "merchants"] as const).map((tab) => {
           const active = activeTab === tab;
+          const label =
+            tab === "browse"
+              ? "Browse"
+              : tab === "my"
+                ? "My Tailors"
+                : "Fabric Merchants";
           return (
             <button
               key={tab}
@@ -103,13 +109,14 @@ export const ExplorePage = memo(() => {
                   transition={{ type: "spring", stiffness: 360, damping: 32 }}
                 />
               )}
-              <span className="relative z-10">
-                {tab === "browse" ? "Browse" : "My Tailors"}
-              </span>
+              <span className="relative z-10">{label}</span>
             </button>
           );
         })}
       </div>
+
+      {activeTab === "merchants" && <MerchantsExploreSection />}
+
 
       {/* Filters - Sticky Browse tab only */}
       {activeTab === "browse" && (
