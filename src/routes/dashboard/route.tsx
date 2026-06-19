@@ -25,6 +25,7 @@ import {
   ChevronsRight,
 } from "lucide-react";
 import { Logo } from "../../components/Logo";
+import { MerchantCartProvider } from "@/features/merchants";
 import {
   Tooltip,
   TooltipContent,
@@ -231,7 +232,9 @@ function DashboardLayout() {
           </header>
 
           <main className="p-4 sm:p-6 lg:p-10">
-            <Outlet />
+            <MerchantCartProvider>
+              <Outlet />
+            </MerchantCartProvider>
           </main>
 
           <Link

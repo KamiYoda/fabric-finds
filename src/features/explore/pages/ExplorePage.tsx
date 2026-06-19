@@ -1,4 +1,4 @@
-import { memo, useState, useCallback, useMemo } from "react";
+import { memo, useState, useCallback } from "react";
 import { useRouter } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
@@ -8,8 +8,9 @@ import { TailorProfileModal } from "../../../components/modals/TailorProfileModa
 import { getTailors } from "@/lib/api/tailors";
 import type { Tailor } from "@/features/tailors/types";
 import { MyTailorsCard } from "../components/MyTailorsCard";
+import { MerchantsExploreSection } from "@/features/merchants";
 
-type Tab = "browse" | "my";
+type Tab = "browse" | "my" | "merchants";
 
 const REGIONS = ["Lagos", "Abuja", "Port Harcourt", "Kano", "Ibadan"];
 
@@ -83,8 +84,14 @@ export const ExplorePage = memo(() => {
 
       {/* Tabs - Sticky */}
       <div className="sticky top-16 z-10 mt-6 flex w-full  bg-muted p-1">
-        {(["browse", "my"] as const).map((tab) => {
+        {(["browse", "my", "merchants"] as const).map((tab) => {
           const active = activeTab === tab;
+          const label =
+            tab === "browse"
+              ? "Browse"
+              : tab === "my"
+                ? "My Tailors"
+                : "Fabric Merchants";
           return (
             <button
               key={tab}
@@ -102,13 +109,14 @@ export const ExplorePage = memo(() => {
                   transition={{ type: "spring", stiffness: 360, damping: 32 }}
                 />
               )}
-              <span className="relative z-10">
-                {tab === "browse" ? "Browse" : "My Tailors"}
-              </span>
+              <span className="relative z-10">{label}</span>
             </button>
           );
         })}
       </div>
+
+      {activeTab === "merchants" && <MerchantsExploreSection />}
+
 
       {/* Filters - Sticky Browse tab only */}
       {activeTab === "browse" && (
