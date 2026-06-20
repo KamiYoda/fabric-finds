@@ -3,11 +3,7 @@ import { useNavigate, useParams, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { ArrowLeft, Send, MapPin } from "lucide-react";
 import { getMerchant } from "../utils/mockFabricMerchants";
-import {
-  useFabricCart,
-  cartTotal,
-  cartItemCount,
-} from "../cart/fabricCart";
+import { useFabricCart, cartTotal, cartItemCount } from "../cart/fabricCart";
 import { formatNaira } from "../utils/formatNaira";
 
 type DeliveryChoice = "tailor" | "self";
@@ -43,7 +39,7 @@ export const MerchantOrderReviewPage = memo(() => {
         >
           <ArrowLeft size={20} />
         </button>
-        <h1 className="font-display text-2xl font-bold">Explore</h1>
+        <h1 className="font-display text-2xl font-bold">Shopping Cart</h1>
       </div>
 
       {/* Cart summary card */}
@@ -77,27 +73,27 @@ export const MerchantOrderReviewPage = memo(() => {
         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
           <Send size={18} />
         </div>
-        <h2 className="mt-2 font-display text-xl font-bold">Order fabric</h2>
+        <h2 className="mt-2 font-display text-xl font-bold">
+          Your fabric's destination?
+        </h2>
 
         <h3 className="mt-5 flex items-center gap-2 text-sm font-semibold">
           <MapPin size={16} className="text-primary" /> Delivery information
         </h3>
 
         <div className="mt-3 space-y-3">
-          {(
-            [
-              {
-                k: "tailor" as const,
-                title: "Send to tailor",
-                subtitle: "Choose a tailor from your pending orders",
-              },
-              {
-                k: "self" as const,
-                title: "Shop for self",
-                subtitle: "Enter your delivery address",
-              },
-            ]
-          ).map(({ k, title, subtitle }) => {
+          {[
+            {
+              k: "tailor" as const,
+              title: "Send to tailor",
+              subtitle: "Choose a tailor from your pending orders",
+            },
+            {
+              k: "self" as const,
+              title: "Shop for self",
+              subtitle: "Enter your delivery address",
+            },
+          ].map(({ k, title, subtitle }) => {
             const active = choice === k;
             return (
               <button
@@ -109,7 +105,9 @@ export const MerchantOrderReviewPage = memo(() => {
                     : "border-transparent bg-muted/60"
                 }`}
               >
-                <div className="font-display text-sm font-semibold">{title}</div>
+                <div className="font-display text-sm font-semibold">
+                  {title}
+                </div>
                 <div className="mt-0.5 text-xs text-muted-foreground">
                   {subtitle}
                 </div>

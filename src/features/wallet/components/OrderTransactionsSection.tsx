@@ -1,7 +1,7 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   Lock,
   CheckCircle2,
@@ -78,7 +78,10 @@ const MOCK_SUMMARY: SpendingSummaryItem[] = [
   },
 ];
 
-function statusTone(tx: WalletTransaction): { label: string; className: string } {
+function statusTone(tx: WalletTransaction): {
+  label: string;
+  className: string;
+} {
   if (tx.type === "credit" && tx.order_id) {
     return { label: "Refunded", className: "bg-success/15 text-success" };
   }
@@ -103,6 +106,7 @@ function formatDate(iso: string): string {
 }
 
 export function OrderTransactionsSection() {
+  const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
   const { data: txData, isLoading: txLoading } = useQuery({
     queryKey: ["wallet-transactions", "all"],
     queryFn: () => getWalletTransactions({ per_page: 100 }),
@@ -188,32 +192,51 @@ export function OrderTransactionsSection() {
           const orderTotal = pending + released;
 
           return (
-            <div
+            <motion.div
               key={g.order_id}
-              className="rounded-3xl border border-border bg-card shadow-soft overflow-hidden"
+              layout
+              className="overflow-hidden rounded-3xl border border-border bg-card shadow-soft"
             >
               {/* Order header */}
-              <div className="flex flex-wrap items-start justify-between gap-3 p-4 sm:p-5 border-b border-border">
-                <div className="min-w-0">
-                  <p className="truncate font-display text-base font-semibold">
-                    {g.order_name}
-                  </p>
-                  <p className="mt-0.5 text-[11px] text-muted-foreground">
-                    {g.items.length} transaction{g.items.length === 1 ? "" : "s"}
-                  </p>
+              <button
+                onClick={() =>
+                  setExpandedOrder(
+                    expandedOrder === g.order_id ? null : g.order_id,
+                  )
+                }
+                className="w-full text-left"
+              >
+                <div className="flex items-center justify-between p-5">
+                  <div>
+                    <p className="font-display text-base font-semibold">
+                      {g.order_name}
+                    </p>
+
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {g.items.length} transaction
+                      {g.items.length > 1 ? "s" : ""}
+                    </p>
+                  </div>
+
+                  <Link
+                    to="/dashboard/orders/$orderId"
+                    params={{ orderId: g.order_id }}
+                    className="inline-flex shrink-0 items-center gap-1 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary transition-colors hover:bg-primary/20"
+                  >
+                    View order{" "}
+                    <ChevronRight
+                      size={18}
+                      className={`transition-transform duration-200 ${
+                        expandedOrder === g.order_id ? "rotate-90" : ""
+                      }`}
+                    />
+                  </Link>
                 </div>
-                <Link
-                  to="/dashboard/orders/$orderId"
-                  params={{ orderId: g.order_id }}
-                  className="inline-flex shrink-0 items-center gap-1 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary transition-colors hover:bg-primary/20"
-                >
-                  View order <ArrowRight size={12} />
-                </Link>
-              </div>
+              </button>
 
               {/* Spend summary — NOT clickable */}
               {s && (
-                <div className="grid grid-cols-3 gap-px bg-border m-0">
+                <div className="grid grid-cols-3 gap-px bg-border mb-4">
                   <div className="bg-card px-4 py-3">
                     <div className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-accent/80">
                       <Lock size={10} /> Escrow
@@ -242,52 +265,67 @@ export function OrderTransactionsSection() {
               )}
 
               {/* Transaction rows — CLICKABLE */}
-              <ul className="divide-y divide-border">
-                {g.items.map((t) => {
-                  const tone = statusTone(t);
-                  return (
-                    <li key={t.id}>
-                      <Link
-                        to="/dashboard/wallet/transaction/$transactionId"
-                        params={{ transactionId: t.id }}
-                        className="flex items-center gap-3 px-4 py-3.5 sm:px-5 transition-colors hover:bg-muted/50 group"
-                      >
-                        {/* Status badge */}
-                        <span
-                          className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${tone.className}`}
-                        >
-                          {tone.label}
-                        </span>
+              <AnimatePresence>
+                {expandedOrder === g.order_id && (
+                  <motion.div
+                    initial={{ opacity: 1, scaleY: 0.95 }}
+                    animate={{ opacity: 1, scaleY: 1 }}
+                    exit={{ opacity: 0, scaleY: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                    style={{ originY: 0 }}
+                  >
+                    <ul className="divide-y divide-border border-t border-border">
+                      {" "}
+                      {g.items.map((t) => {
+                        const tone = statusTone(t);
+                        return (
+                          <li key={t.id}>
+                            <Link
+                              to="/dashboard/wallet/transaction/$transactionId"
+                              params={{ transactionId: t.id }}
+                              className="flex items-center gap-3 px-4 py-3.5 sm:px-5 transition-colors hover:bg-muted/50 group"
+                            >
+                              {/* Status badge */}
+                              <span
+                                className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${tone.className}`}
+                              >
+                                {tone.label}
+                              </span>
 
-                        <div className="min-w-0 flex-1">
-                          <p className="text-xs text-muted-foreground">
-                            {formatDate(t.date)}
-                          </p>
-                          {t.tailor_name && (
-                            <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                              {t.tailor_name}
-                            </p>
-                          )}
-                        </div>
+                              <div className="min-w-0 flex-1">
+                                <p className="text-xs text-muted-foreground">
+                                  {formatDate(t.date)}
+                                </p>
+                                {t.tailor_name && (
+                                  <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                                    {t.tailor_name}
+                                  </p>
+                                )}
+                              </div>
 
-                        <div
-                          className={`font-display text-sm font-bold tabular-nums ${
-                            t.type === "credit" ? "text-success" : "text-foreground"
-                          }`}
-                        >
-                          {t.type === "credit" ? "+" : "-"}
-                          {formatNaira(Math.abs(t.amount))}
-                        </div>
-                        <ChevronRight
-                          size={14}
-                          className="text-muted-foreground transition-transform group-hover:translate-x-0.5"
-                        />
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
+                              <div
+                                className={`font-display text-sm font-bold tabular-nums ${
+                                  t.type === "credit"
+                                    ? "text-success"
+                                    : "text-foreground"
+                                }`}
+                              >
+                                {t.type === "credit" ? "+" : "-"}
+                                {formatNaira(Math.abs(t.amount))}
+                              </div>
+                              <ChevronRight
+                                size={14}
+                                className="text-muted-foreground transition-transform group-hover:translate-x-0.5"
+                              />
+                            </Link>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
           );
         })
       )}

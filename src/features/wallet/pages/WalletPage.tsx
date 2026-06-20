@@ -28,8 +28,20 @@ import { OrderTransactionsSection } from "../components/OrderTransactionsSection
 import { getSpendingSummary, type SpendingSummaryItem } from "@/lib/api/wallet";
 
 const MOCK_SUMMARY: SpendingSummaryItem[] = [
-  { order_id: "mock-order-1", order_name: "Ankara Senator Suit", spending: 40000, pending: 25000, released: 15000 },
-  { order_id: "mock-order-2", order_name: "Aso Ebi Wedding Gown", spending: 42000, pending: 42000, released: 0 },
+  {
+    order_id: "mock-order-1",
+    order_name: "Ankara Senator Suit",
+    spending: 40000,
+    pending: 25000,
+    released: 15000,
+  },
+  {
+    order_id: "mock-order-2",
+    order_name: "Aso Ebi Wedding Gown",
+    spending: 42000,
+    pending: 42000,
+    released: 0,
+  },
 ];
 
 function Card({ children, className = "", delay = 0 }: any) {
@@ -146,102 +158,114 @@ export default function WalletPage() {
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-3xl gradient-primary p-4 sm:p-6 md:p-8 text-primary-foreground shadow-elegant"
+        className="relative overflow-hidden rounded-3xl gradient-primary p-4 sm:p-5 md:p-6 text-primary-foreground shadow-elegant"
       >
         <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-accent/25 blur-3xl" />
         <div className="absolute -left-16 -bottom-24 h-64 w-64 rounded-full bg-primary-glow/30 blur-3xl" />
 
-        <div className="relative space-y-4 lg:space-y-0 lg:grid lg:grid-cols-[1.5fr_1fr] lg:items-end lg:gap-6">
-          <div>
-            <div className="flex items-center gap-2.5 sm:gap-3">
-              <div className="flex h-9 w-9 sm:h-11 sm:w-11 items-center justify-center rounded-2xl bg-white/15 backdrop-blur">
-                <WalletIcon size={18} className="sm:hidden" />
-                <WalletIcon size={20} className="hidden sm:block" />
-              </div>
-              <div>
-                <p className="text-[10px] sm:text-xs uppercase tracking-wider text-primary-foreground/70">
-                  Wallet
-                </p>
-              </div>
+        <div className="relative">
+          {/* Wallet Header */}
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/15 backdrop-blur">
+              <WalletIcon size={20} />
             </div>
 
-            <div className="mt-4 sm:mt-6">
-              <p className="text-xs sm:text-sm text-primary-foreground/70">
-                Available balance
+            <div>
+              <p className="text-xs uppercase tracking-wider text-primary-foreground/70">
+                Wallet
               </p>
-              <div className="mt-1 flex items-center gap-2 sm:gap-3">
-                <div className="font-display text-3xl font-bold sm:text-4xl md:text-5xl tabular-nums">
-                  {mask(fmt(available))}
-                </div>
-                <button
-                  onClick={() => setHidden((h) => !h)}
-                  className="rounded-full bg-white/10 p-1.5 sm:p-2 transition-colors hover:bg-white/20"
-                  aria-label={hidden ? "Show balance" : "Hide balance"}
-                >
-                  {hidden ? <Eye size={14} /> : <EyeOff size={14} />}
-                </button>
-              </div>
-              <p className="mt-1.5 inline-flex items-center gap-1 text-xs text-primary-foreground/70">
-                <TrendingUp size={11} /> +12.4% this month
-              </p>
-            </div>
-
-            <div className="mt-4 sm:mt-6 flex flex-wrap gap-2 sm:gap-3">
-              <Link to="/dashboard/wallet/topup/">
-                <Button variant="accent" size="sm" className="sm:!py-2.5 sm:!px-5">
-                  <Plus size={14} /> Top-Up
-                </Button>
-              </Link>
-              <Link to="/dashboard/wallet/withdraw/">
-                <Button variant="glass" size="sm" className="sm:!py-2.5 sm:!px-5">
-                  <ArrowUpRight size={14} /> Withdraw
-                </Button>
-              </Link>
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-2 sm:gap-3 lg:grid-cols-1 lg:gap-2.5">
-            <div className="rounded-2xl bg-white/10 p-3 sm:p-4 backdrop-blur border border-white/15">
+          {/* Available Balance */}
+          <div className="mt-5">
+            <p className="text-sm text-primary-foreground/70">
+              Available balance
+            </p>
+
+            <div className="mt-1 flex items-center gap-3">
+              <div className="font-display text-3xl sm:text-4xl md:text-5xl font-bold tabular-nums">
+                {mask(fmt(available))}
+              </div>
+
+              <button
+                onClick={() => setHidden((h) => !h)}
+                className="rounded-full bg-white/10 p-2 transition-colors hover:bg-white/20"
+                aria-label={hidden ? "Show balance" : "Hide balance"}
+              >
+                {hidden ? <Eye size={16} /> : <EyeOff size={16} />}
+              </button>
+            </div>
+
+            {/* <p className="mt-2 inline-flex items-center gap-1 text-xs text-primary-foreground/70">
+              <TrendingUp size={11} /> +12.4% this month
+            </p> */}
+          </div>
+
+          {/* Compact Stats Row */}
+          <div className="mt-5 grid grid-cols-3 gap-2">
+            <div className="rounded-2xl border border-white/15 bg-white/10 p-3 backdrop-blur">
               <div className="flex items-center justify-between">
-                <p className="text-[10px] sm:text-xs text-primary-foreground/70">
-                  Pending escrow
-                </p>
-                <div className="flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-lg bg-accent/30">
+                <p className="text-[11px] text-primary-foreground/70">Escrow</p>
+
+                <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-accent/30">
                   <Lock size={11} />
                 </div>
               </div>
-              <div className="mt-1.5 sm:mt-2 font-display text-base sm:text-xl font-bold tabular-nums">
+
+              <p className="mt-2 font-display text-sm sm:text-lg font-bold tabular-nums">
                 {mask(fmt(pendingEscrow))}
-              </div>
+              </p>
             </div>
 
-            <div className="rounded-2xl bg-white/10 p-3 sm:p-4 backdrop-blur border border-white/15">
+            <div className="rounded-2xl border border-white/15 bg-white/10 p-3 backdrop-blur">
               <div className="flex items-center justify-between">
-                <p className="text-[10px] sm:text-xs text-primary-foreground/70">
-                  Released
-                </p>
-                <div className="flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-lg bg-success/30">
-                  <CheckCircle2 size={11} />
-                </div>
-              </div>
-              <div className="mt-1.5 sm:mt-2 font-display text-base sm:text-xl font-bold tabular-nums">
-                {mask(fmt(released))}
-              </div>
-            </div>
+                <p className="text-[11px] text-primary-foreground/70">Spent</p>
 
-            <div className="rounded-2xl bg-white/10 p-3 sm:p-4 backdrop-blur border border-white/15">
-              <div className="flex items-center justify-between">
-                <p className="text-[10px] sm:text-xs text-primary-foreground/70">
-                  Total spent
-                </p>
-                <div className="flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-lg bg-white/20">
+                <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-white/20">
                   <WalletIcon size={11} />
                 </div>
               </div>
-              <div className="mt-1.5 sm:mt-2 font-display text-base sm:text-xl font-bold tabular-nums">
+
+              <p className="mt-2 font-display text-sm sm:text-lg font-bold tabular-nums">
                 {mask(fmt(totalSpent))}
-              </div>
+              </p>
             </div>
+
+            <div className="rounded-2xl border border-white/15 bg-white/10 p-3 backdrop-blur">
+              <div className="flex items-center justify-between">
+                <p className="text-[11px] text-primary-foreground/70">
+                  Released
+                </p>
+
+                <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-success/30">
+                  <CheckCircle2 size={11} />
+                </div>
+              </div>
+
+              <p className="mt-2 font-display text-sm sm:text-lg font-bold tabular-nums">
+                {mask(fmt(released))}
+              </p>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="mt-5 flex flex-wrap gap-3">
+            <Link to="/dashboard/wallet/topup/">
+              <Button
+                variant="accent"
+                size="sm"
+                className="sm:!py-2.5 sm:!px-5"
+              >
+                <Plus size={14} /> Top-Up
+              </Button>
+            </Link>
+
+            <Link to="/dashboard/wallet/withdraw/">
+              <Button variant="glass" size="sm" className="sm:!py-2.5 sm:!px-5">
+                <ArrowUpRight size={14} /> Withdraw
+              </Button>
+            </Link>
           </div>
         </div>
       </motion.div>
@@ -283,7 +307,9 @@ export default function WalletPage() {
               <h2 className="font-display text-lg sm:text-xl font-semibold">
                 Transactions
               </h2>
-              <p className="text-xs text-muted-foreground">All wallet activity</p>
+              <p className="text-xs text-muted-foreground">
+                All wallet activity
+              </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <div className="relative">
@@ -355,7 +381,9 @@ export default function WalletPage() {
                       <Icon size={16} />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold">{t.title}</p>
+                      <p className="truncate text-sm font-semibold">
+                        {t.title}
+                      </p>
                       <p className="truncate text-xs text-muted-foreground">
                         {t.meta}
                       </p>

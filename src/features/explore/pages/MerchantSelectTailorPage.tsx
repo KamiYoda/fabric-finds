@@ -54,17 +54,18 @@ export const MerchantSelectTailorPage = memo(() => {
     staleTime: 60_000,
   });
 
-  const orders: Pending[] = Array.isArray(data) && data.length > 0
-    ? data.map((o: any) => ({
-        id: String(o.id ?? o.order_id),
-        title: o.title ?? o.order_name ?? "Order",
-        tailor_name: o.tailor_name ?? o.tailor?.name,
-        tailor_avatar: o.tailor_avatar ?? o.tailor?.avatar,
-        distance_km: o.distance_km ?? 16,
-        est_delivery_days: o.est_delivery_days ?? [2, 3],
-        delivery_fee_estimate: o.delivery_fee_estimate ?? 3500,
-      }))
-    : FALLBACK;
+  const orders: Pending[] =
+    Array.isArray(data) && data.length > 0
+      ? data.map((o: any) => ({
+          id: String(o.id ?? o.order_id),
+          title: o.title ?? o.order_name ?? "Order",
+          tailor_name: o.tailor_name ?? o.tailor?.name,
+          tailor_avatar: o.tailor_avatar ?? o.tailor?.avatar,
+          distance_km: o.distance_km ?? 16,
+          est_delivery_days: o.est_delivery_days ?? [2, 3],
+          delivery_fee_estimate: o.delivery_fee_estimate ?? 3500,
+        }))
+      : FALLBACK;
 
   return (
     <div className="mx-auto w-full max-w-2xl pb-32">
@@ -75,7 +76,7 @@ export const MerchantSelectTailorPage = memo(() => {
         >
           <ArrowLeft size={20} />
         </button>
-        <h1 className="font-display text-2xl font-bold">Explore</h1>
+        <h1 className="font-display text-2xl font-bold">Select an order</h1>
       </div>
 
       {/* Cart strip */}
@@ -104,7 +105,9 @@ export const MerchantSelectTailorPage = memo(() => {
 
       {/* Order cards — in card container */}
       <div className="mt-5 w-full rounded-3xl border border-border bg-card p-4 shadow-soft">
-        <h2 className="font-display text-base font-semibold mb-3">Select an order</h2>
+        <h2 className="font-display text-base font-semibold mb-3">
+          Select an open order
+        </h2>
         <div className="space-y-3">
           {isLoading ? (
             <div className="flex items-center gap-2 py-6 text-sm text-muted-foreground">
@@ -143,12 +146,12 @@ export const MerchantSelectTailorPage = memo(() => {
                   </div>
                   <div className="mt-2 border-t border-dashed border-border pt-2 flex items-center justify-between text-xs">
                     <span className="flex items-center gap-1 text-muted-foreground">
-                      <Truck size={12} /> Est delivery
+                      <Truck size={12} /> Est delivery fee
                     </span>
                     <span className="font-semibold text-primary">
-                      {showFees
-                        ? formatNaira(o.delivery_fee_estimate ?? 0)
-                        : `${o.est_delivery_days?.[0]}-${o.est_delivery_days?.[1]} days`}
+                      {formatNaira(o.delivery_fee_estimate ?? 0)} | Est delivery
+                      time: {o.est_delivery_days?.[0]}-
+                      {o.est_delivery_days?.[1]} days
                     </span>
                   </div>
                 </button>
@@ -162,10 +165,6 @@ export const MerchantSelectTailorPage = memo(() => {
         <button
           disabled={!selectedId}
           onClick={() => {
-            if (!showFees) {
-              setShowFees(true);
-              return;
-            }
             navigate({
               to: "/dashboard/explore/merchant/$merchantId/chat" as any,
               params: { merchantId } as any,

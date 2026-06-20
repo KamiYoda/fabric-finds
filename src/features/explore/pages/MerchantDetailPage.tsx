@@ -11,11 +11,12 @@ import {
   X,
   ShoppingCart,
   Info,
+  ChevronRight,
+  Clock,
+  Truck,
+  Package,
 } from "lucide-react";
-import {
-  getMerchant,
-  type FabricProduct,
-} from "../utils/mockFabricMerchants";
+import { getMerchant, type FabricProduct } from "../utils/mockFabricMerchants";
 import {
   setActiveMerchant,
   addItem,
@@ -36,7 +37,9 @@ export const MerchantDetailPage = memo(() => {
   const merchant = getMerchant(merchantId);
   const [tab, setTab] = useState<Tab>("catalog");
   const [saved, setSaved] = useState(false);
-  const [activeProduct, setActiveProduct] = useState<FabricProduct | null>(null);
+  const [activeProduct, setActiveProduct] = useState<FabricProduct | null>(
+    null,
+  );
   const [profileOpen, setProfileOpen] = useState(false);
 
   const cart = useFabricCart();
@@ -59,11 +62,13 @@ export const MerchantDetailPage = memo(() => {
   }
 
   return (
-    <div className="mx-auto w-full max-w-2xl pb-32">
+    <div className="mx-auto w-full">
       {/* Header */}
       <div className="flex items-center gap-3">
         <button
-          onClick={() => navigate({ to: "/dashboard/explore", search: { tab: "browse" } })}
+          onClick={() =>
+            navigate({ to: "/dashboard/explore", search: { tab: "browse" } })
+          }
           className="rounded-full p-2 hover:bg-muted"
           aria-label="Back"
         >
@@ -135,12 +140,10 @@ export const MerchantDetailPage = memo(() => {
 
       {/* Pill tabs */}
       <div className="mt-5 flex rounded-full bg-muted p-1 text-sm font-medium">
-        {(
-          [
-            { k: "catalog" as const, label: "Product Catalog" },
-            { k: "about" as const, label: "About this merchant" },
-          ]
-        ).map(({ k, label }) => {
+        {[
+          { k: "catalog" as const, label: "Product Catalog" },
+          { k: "about" as const, label: "About this merchant" },
+        ].map(({ k, label }) => {
           const active = tab === k;
           return (
             <button
@@ -235,7 +238,9 @@ export const MerchantDetailPage = memo(() => {
                               onClick={() => setActiveProduct(p)}
                               className="flex items-center gap-1 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground"
                             >
-                              {formatNaira(inCart.pricePerUnit * inCart.quantity)}
+                              {formatNaira(
+                                inCart.pricePerUnit * inCart.quantity,
+                              )}
                               <ChevronDown size={12} />
                             </button>
                             <button
@@ -265,7 +270,10 @@ export const MerchantDetailPage = memo(() => {
             })}
           </ul>
         ) : (
-          <AboutMerchant merchant={merchant} />
+          <AboutMerchant
+            merchant={merchant}
+            onOpenProfile={() => setProfileOpen(true)}
+          />
         )}
       </div>
 
@@ -321,17 +329,63 @@ MerchantDetailPage.displayName = "MerchantDetailPage";
 
 function AboutMerchant({
   merchant,
+  onOpenProfile,
 }: {
   merchant: NonNullable<ReturnType<typeof getMerchant>>;
+  onOpenProfile: () => void;
 }) {
-  const dist = merchant.reviewsDistribution;
-  const totalReviews = dist
-    ? Object.values(dist).reduce((a, b) => a + b, 0)
-    : 0;
+  const avgRating =
+    merchant.reviewsAverage ??
+    (merchant.reviews?.length
+      ? merchant.reviews.reduce((s, r) => s + r.rating, 0) /
+        merchant.reviews.length
+      : merchant.rating);
+
   return (
-    <div className="space-y-5">
-      <p className="text-sm text-muted-foreground">{merchant.about}</p>
-      {merchant.tags && (
+    <div className="space-y-4">
+      {/* Identity — mirrors modal header */}
+      <div className="flex items-start gap-3">
+        <img
+          src={merchant.image}
+          alt={merchant.name}
+          className="h-14 w-14 rounded-full object-cover"
+        />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-1.5">
+            <h3 className="font-display text-base font-semibold">
+              {merchant.name}
+            </h3>
+            {merchant.verified && (
+              <BadgeCheck
+                size={15}
+                className="fill-primary text-primary-foreground shrink-0"
+              />
+            )}
+          </div>
+          {merchant.shopName && (
+            <p className="text-xs font-medium text-primary">
+              {merchant.shopName}
+            </p>
+          )}
+          <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
+            <Star size={11} className="fill-yellow-400 text-yellow-400" />
+            <span>{avgRating.toFixed(1)}</span>
+            {merchant.reviewsCount != null && (
+              <span>· {merchant.reviewsCount} reviews</span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Bio */}
+      {(merchant.bio ?? merchant.about) && (
+        <p className="text-sm text-muted-foreground line-clamp-3">
+          {merchant.bio ?? merchant.about}
+        </p>
+      )}
+
+      {/* Tags */}
+      {merchant.tags && merchant.tags.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {merchant.tags.map((t) => (
             <span
@@ -343,128 +397,64 @@ function AboutMerchant({
           ))}
         </div>
       )}
-      <div className="grid grid-cols-2 gap-3">
-        <div className="rounded-xl bg-muted/60 p-4">
-          <div className="flex items-center gap-1.5">
-            <Star size={14} className="fill-yellow-400 text-yellow-400" />
-            <span className="font-display text-lg font-bold text-primary">
-              {merchant.rating.toFixed(1)}/5
-            </span>
+
+      {/* Quick stats */}
+      <div className="grid grid-cols-2 gap-2.5">
+        <div className="rounded-2xl bg-muted/60 p-3">
+          <div className="flex items-center gap-1 font-display text-lg font-bold text-primary">
+            <Star size={14} className="fill-accent text-accent" />
+            {avgRating.toFixed(1)}
           </div>
-          <div className="mt-1 text-xs font-medium text-primary">
-            Customer Ratings
-          </div>
+          <div className="text-[11px] text-primary">Customer Ratings</div>
         </div>
-        <div className="grid grid-cols-2 gap-3 rounded-xl bg-muted/60 p-4">
+        <div className="flex items-center gap-3 rounded-2xl bg-muted/60 p-3">
           <div>
             <div className="font-display text-lg font-bold">
               {merchant.orders ?? 0}
             </div>
-            <div className="text-xs text-muted-foreground">Orders</div>
+            <div className="text-[11px] text-muted-foreground">Orders</div>
           </div>
+          <div className="h-7 w-px bg-border" />
           <div>
             <div className="font-display text-lg font-bold">
               {merchant.completionRate ?? 100}%
             </div>
-            <div className="text-xs text-muted-foreground">
-              Completion rate
-            </div>
+            <div className="text-[11px] text-muted-foreground">Completion</div>
           </div>
         </div>
       </div>
-      <div className="rounded-xl bg-primary/5 p-4 text-xs text-primary">
-        {merchant.replyTime && <div>{merchant.replyTime}</div>}
-        {merchant.avgDelivery && <div>{merchant.avgDelivery}</div>}
-        {merchant.dressDelivery && <div>{merchant.dressDelivery}</div>}
-      </div>
 
-      <div>
-        <h3 className="font-display text-base font-semibold">Reviews</h3>
-        {merchant.reviewsAverage != null && (
-          <div className="mt-2 rounded-2xl bg-primary p-5 text-center text-primary-foreground">
-            <div className="font-display text-3xl font-bold">
-              {merchant.reviewsAverage.toFixed(1)}/5
+      {/* Delivery info */}
+      {(merchant.replyTime ||
+        merchant.avgDelivery ||
+        merchant.dressDelivery) && (
+        <div className="space-y-1.5 rounded-2xl bg-primary/5 p-3 text-xs text-primary">
+          {merchant.replyTime && (
+            <div className="flex items-center gap-2">
+              <Clock size={11} /> {merchant.replyTime}
             </div>
-            <div className="mt-1 flex justify-center gap-1">
-              {[1, 2, 3, 4, 5].map((s) => (
-                <Star
-                  key={s}
-                  size={20}
-                  className={
-                    s <= Math.round(merchant.reviewsAverage ?? 0)
-                      ? "fill-yellow-400 text-yellow-400"
-                      : "text-primary-foreground/30"
-                  }
-                />
-              ))}
+          )}
+          {merchant.avgDelivery && (
+            <div className="flex items-center gap-2">
+              <Truck size={11} /> {merchant.avgDelivery}
             </div>
-            <div className="mt-1 text-xs text-primary-foreground/70">
-              {merchant.reviewsCount ?? 0} reviews
+          )}
+          {merchant.dressDelivery && (
+            <div className="flex items-center gap-2">
+              <Package size={11} /> {merchant.dressDelivery}
             </div>
-          </div>
-        )}
+          )}
+        </div>
+      )}
 
-        {dist && (
-          <div className="mt-3 space-y-1.5">
-            {([5, 4, 3, 2, 1] as const).map((s) => {
-              const count = dist[s];
-              const pct = totalReviews ? (count / totalReviews) * 100 : 0;
-              return (
-                <div key={s} className="flex items-center gap-2 text-xs">
-                  <span className="flex w-6 items-center gap-0.5">
-                    {s}
-                    <Star
-                      size={10}
-                      className="fill-yellow-400 text-yellow-400"
-                    />
-                  </span>
-                  <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
-                    <div
-                      className="h-full rounded-full bg-primary"
-                      style={{ width: `${pct}%` }}
-                    />
-                  </div>
-                  <span className="w-6 text-right tabular-nums text-muted-foreground">
-                    {count}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        <ul className="mt-4 space-y-3">
-          {merchant.reviews?.map((r) => (
-            <li key={r.id} className="rounded-xl bg-muted/40 p-3">
-              <div className="flex items-center gap-2">
-                <img
-                  src={r.authorAvatar}
-                  alt=""
-                  className="h-7 w-7 rounded-full object-cover"
-                />
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-semibold">
-                      {r.authorName}
-                    </span>
-                    <span className="text-[11px] text-muted-foreground">
-                      {r.date}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1 text-[11px]">
-                    <Star
-                      size={10}
-                      className="fill-yellow-400 text-yellow-400"
-                    />
-                    {r.rating.toFixed(1)}
-                  </div>
-                </div>
-              </div>
-              <p className="mt-2 text-xs text-muted-foreground">{r.body}</p>
-            </li>
-          ))}
-        </ul>
-      </div>
+      {/* See full profile CTA */}
+      <button
+        onClick={onOpenProfile}
+        className="flex w-full items-center justify-between rounded-2xl border border-border bg-muted/40 px-4 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
+      >
+        See full profile · reviews & products
+        <ChevronRight size={16} className="text-muted-foreground" />
+      </button>
     </div>
   );
 }
